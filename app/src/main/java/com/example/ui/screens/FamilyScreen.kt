@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -64,7 +67,7 @@ fun FamilyScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, top = 8.dp, bottom = 4.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
         ) {
             Text(
                 text = stringResource(R.string.profiles_title),
@@ -168,7 +171,7 @@ fun FamilyScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, top = 16.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -268,7 +271,7 @@ fun FamilyScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, top = 20.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -321,7 +324,7 @@ fun FamilyScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, top = 20.dp, bottom = 8.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -759,8 +762,7 @@ fun AddEditProfileDialog(
                                 )
                             )
                         },
-                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
+                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) }
                     )
                 }
             }
@@ -914,8 +916,7 @@ fun LogVitalDialog(
                                 )
                             )
                         },
-                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
+                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) }
                     )
                 }
             }
@@ -1040,8 +1041,7 @@ fun AddAppointmentDialog(
                                 )
                             )
                         },
-                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
+                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) }
                     )
                 }
             }

@@ -4,115 +4,74 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
 import com.example.security.CryptoManager
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
-import java.util.UUID
 
 object FileManager {
 
     fun getRecordsDir(context: Context): File {
-        val dir = File(context.filesDir, "records")
-        if (!dir.exists()) dir.mkdirs()
-        return dir
-    }
-
-    fun getExportsDir(context: Context): File {
-        val dir = File(context.filesDir, "exports")
+        val dir = File(context.filesDir, "encrypted_records")
         if (!dir.exists()) dir.mkdirs()
         return dir
     }
 
     fun getCacheImagesDir(context: Context): File {
-        val dir = File(context.cacheDir, "images")
+        val dir = File(context.cacheDir, "record_images")
         if (!dir.exists()) dir.mkdirs()
         return dir
     }
 
-    fun saveEncryptedFile(context: Context, sourceUri: Uri, originalFileName: String): Pair<String, Long> {
-        val uniqueName = "${UUID.randomUUID()}_$originalFileName.enc"
-        val destinationFile = File(getRecordsDir(context), uniqueName)
-
-        val inputStream: InputStream = context.contentResolver.openInputStream(sourceUri)
-            ?: throw IllegalArgumentException("Cannot open stream for Uri: $sourceUri")
-
-        inputStream.use { stream ->
-            CryptoManager.encryptFile(stream, destinationFile)
-        }
-
-        return Pair(destinationFile.absolutePath, destinationFile.length())
+    fun getShareableUri(context: Context, file: File): Uri {
+        val authority = "${context.packageName}.fileprovider"
+        return FileProvider.getUriForFile(context, authority, file)
     }
 
-    fun saveEncryptedBitmap(context: Context, bitmap: Bitmap, namePrefix: String): Pair<String, Long> {
-        val uniqueName = "${UUID.randomUUID()}_${namePrefix}.jpg.enc"
-        val destinationFile = File(getRecordsDir(context), uniqueName)
-
-        val tempFile = File(context.cacheDir, "temp_cam_${System.currentTimeMillis()}.jpg")
-        FileOutputStream(tempFile).use { fos ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos)
-        }
-
-        tempFile.inputStream().use { stream ->
-            CryptoManager.encryptFile(stream, destinationFile)
-        }
-        tempFile.delete()
-
-        return Pair(destinationFile.absolutePath, destinationFile.length())
+    fun saveEncryptedFile(context: Context, uri: Uri, originalName: String): Pair<String, Long> {
+        val recordsDir = getRecordsDir(context)
+        val destFile = File(recordsDir, "${System.currentTimeMillis()}_$originalName.enc")
+        val bytesWritten = context.contentResolver.openInputStream(uri)?.use { input ->
+            CryptoManager.encryptFile(input, destFile)
+        } ?: 0L
+        return Pair(destFile.absolutePath, bytesWritten)
     }
 
-    fun decryptToShareableFile(context: Context, encryptedFilePath: String, targetFileName: String): File? {
-        val encryptedFile = File(encryptedFilePath)
-        if (!encryptedFile.exists()) return null
-
-        val safeName = if (targetFileName.endsWith(".enc")) targetFileName.removeSuffix(".enc") else targetFileName
-        val tempFile = File(getCacheImagesDir(context), "view_${System.currentTimeMillis()}_$safeName")
-
-        FileOutputStream(tempFile).use { fos ->
-            CryptoManager.decryptFile(encryptedFile, fos)
-        }
-        return tempFile
+    fun deleteEncryptedFile(path: String): Boolean {
+        val file = File(path)
+        return if (file.exists()) file.delete() else true
     }
 
-    fun loadDecryptedBitmap(encryptedFilePath: String): Bitmap? {
-        val file = File(encryptedFilePath)
+    fun wipeAllEncryptedFiles(context: Context) {
+        val recordsDir = getRecordsDir(context)
+        recordsDir.listFiles()?.forEach { it.delete() }
+        val cacheDir = getCacheImagesDir(context)
+        cacheDir.listFiles()?.forEach { it.delete() }
+    }
+
+    fun loadDecryptedBitmap(filePath: String): Bitmap? {
+        val file = File(filePath)
         if (!file.exists()) return null
         return try {
             val bytes = CryptoManager.decryptToByteArray(file)
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         } catch (e: Exception) {
-            Log.e("FileManager", "Failed decrypting bitmap preview", e)
             null
         }
     }
 
-    fun deleteEncryptedFile(encryptedFilePath: String): Boolean {
+    fun decryptToShareableFile(context: Context, filePath: String, fileName: String): File? {
+        val srcFile = File(filePath)
+        if (!srcFile.exists()) return null
+        val cacheDir = getCacheImagesDir(context)
+        val destFile = File(cacheDir, "share_$fileName")
         return try {
-            val file = File(encryptedFilePath)
-            if (file.exists()) file.delete() else true
+            FileOutputStream(destFile).use { output ->
+                CryptoManager.decryptFile(srcFile, output)
+            }
+            destFile
         } catch (e: Exception) {
-            Log.e("FileManager", "Failed deleting file $encryptedFilePath", e)
-            false
+            null
         }
-    }
-
-    fun wipeAllEncryptedFiles(context: Context) {
-        try {
-            getRecordsDir(context).deleteRecursively()
-            getExportsDir(context).deleteRecursively()
-            getCacheImagesDir(context).deleteRecursively()
-        } catch (e: Exception) {
-            Log.e("FileManager", "Error wiping storage", e)
-        }
-    }
-
-    fun getShareableUri(context: Context, file: File): Uri {
-        return FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
     }
 }

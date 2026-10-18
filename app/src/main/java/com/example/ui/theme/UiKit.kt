@@ -1,9 +1,12 @@
 package com.example.ui.theme
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -12,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.R
 
@@ -196,7 +201,7 @@ fun MdChip(
         onClick = onClick,
         label = label,
         shape = ChipShape,
-        colors = FilterChipDefaults.colors(
+        colors = FilterChipDefaults.filterChipColors(
             containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
         ),
@@ -213,8 +218,8 @@ fun MdTextField(
     placeholder: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
-    keyboardOptions: androidx.compose.foundation.text.KeyboardOptions = KeyboardOptions.Default,
-    visualTransformation: androidx.compose.ui.text.input.VisualTransformation? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
     maxLines: Int = 1,
     minLines: Int = 1,
@@ -237,9 +242,9 @@ fun MdTextField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-            disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
         shape = FieldShape,
@@ -421,8 +426,7 @@ fun MdBottomNav(
             .windowInsetsPadding(WindowInsets.navigationBars)
             .testTag("bottom_nav_bar"),
         containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.dp,
-        indicator = { /* no floating indicator — subtle tint only */ }
+        tonalElevation = 0.dp
     ) {
         val itemColors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -477,8 +481,8 @@ fun MdBottomNav(
 // ── Small inline section icon ──────────────────────────────────────────
 @Composable
 fun MdIcon(
-    imageVector: androidx.compose.material3.ImageVector,
-    tint: androidx.compose.ui.graphics.Color,
+    imageVector: ImageVector,
+    tint: Color,
     size: Dp = 20.dp
 ) {
     Icon(

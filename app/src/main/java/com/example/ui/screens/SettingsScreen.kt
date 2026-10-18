@@ -8,8 +8,12 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -418,7 +422,6 @@ fun SettingsScreen(
                 modifier = Modifier.weight(1f).height(46.dp)
             )
         }
-        .padding(horizontal = 16.dp)
 
         // ── Section: About ──
         MdSection(
@@ -447,17 +450,18 @@ fun SettingsScreen(
         )
         MdTextButton(
             onClick = { showDisclaimerInfoDialog = true },
-            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.Start)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(imageVector = Icons.Default.HealthAndSafety, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("View Medical Disclaimer & Privacy Notice")
-            }
-        }
+            label = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = Icons.Default.HealthAndSafety, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("View Medical Disclaimer & Privacy Notice")
+                }
+            },
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
 
         // ── Danger Zone: Erase all data ──
         MdSection(
@@ -485,12 +489,14 @@ fun SettingsScreen(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        MdPrimaryButton(
+        Button(
             onClick = { showDeleteConfirmDialog = true },
-            label = { Text("Erase All Data Permanently", fontWeight = FontWeight.Bold) },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(46.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MdError, contentColor = Color.White)
-        )
+            colors = ButtonDefaults.buttonColors(containerColor = MdError, contentColor = Color.White),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(46.dp)
+        ) {
+            Text("Erase All Data Permanently", fontWeight = FontWeight.Bold)
+        }
     }
 
     // ── Dialogs ──
@@ -699,8 +705,7 @@ fun SetPinDialog(
                             }
                             onPinSaved(pin)
                         },
-                        label = { Text("Save PIN", fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
+                        label = { Text("Save PIN", fontWeight = FontWeight.Bold) }
                     )
                 }
             }
@@ -802,8 +807,7 @@ fun BackupPasswordDialog(
                             }
                             onSubmit(password)
                         },
-                        label = { Text(buttonLabel, fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
+                        label = { Text(buttonLabel, fontWeight = FontWeight.Bold) }
                     )
                 }
             }
