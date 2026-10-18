@@ -1,0 +1,171 @@
+<resources>
+    <string name="app_name">દવાદાયરી</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">આજે</string>
+    <string name="nav_medicines">દવાઓ</string>
+    <string name="nav_records">રેકોર્ડ્સ</string>
+    <string name="nav_family">પરિવાર</string>
+    <string name="nav_settings">સેટિંગ્સ</string>
+
+    <!-- Profiles -->
+    <string name="profiles_title">પરિવાર પ્રોફાઇલ</string>
+    <string name="add_profile">સભ્ય ઉમેરો</string>
+    <string name="edit_profile">પ્રોફાઇલ સંપાદિત કરો</string>
+    <string name="switch_profile">પ્રોફાઇલ બદલો</string>
+    <string name="all_profiles">સમગ્ર પરિવાર</string>
+    <string name="profile_self">પોતે</string>
+    <string name="field_name">પૂરું નામ</string>
+    <string name="field_relationship">સંબંધ</string>
+    <string name="field_dob">જન્મ તારીખ</string>
+    <string name="field_gender">જાતિ</string>
+    <string name="field_blood_group">બ્લડ ગ્રૂપ</string>
+    <string name="field_allergies">એલર્જી (દા.ત. પેનિસિલિન)</string>
+    <string name="field_chronic_conditions">જૂની બીમારી (ડાયાબિટીસ, બીપી)</string>
+    <string name="field_emergency_contact">ઇમરજન્સી સંપર્ક નંબર</string>
+    <string name="delete_profile_confirm">શું તમે ખરેખર આ પ્રોફાઇલ કાઢી નાખવા માંગો છો? તેમની તમામ દવાઓ અને રેકોર્ડ્સ કાયમ માટે કાઢી નાખવામાં આવશે.</string>
+
+    <!-- Medicines -->
+    <string name="medicines_title">દવાઓ</string>
+    <string name="add_medicine">દવા ઉમેરો</string>
+    <string name="edit_medicine">દવા સંપાદિત કરો</string>
+    <string name="medicine_name">દવાનું નામ</string>
+    <string name="medicine_strength">પાવર / માત્રા (દા.ત. 500mg, 10ml)</string>
+    <string name="medicine_form">પ્રકાર</string>
+    <string name="form_tablet">ગોળી (ટેબ્લેટ)</string>
+    <string name="form_capsule">કેપ્સ્યુલ</string>
+    <string name="form_syrup">સીરપ</string>
+    <string name="form_injection">ઇન્જેક્શન</string>
+    <string name="form_drops">ટીપાં (ડ્રોપ્સ)</string>
+    <string name="form_inhaler">ઇન્હેલર</string>
+    <string name="form_ointment">મલમ / ક્રીમ</string>
+    <string name="dose_quantity">ડોઝ (દા.ત. 1 ગોળી, 5 મિલી)</string>
+    <string name="food_instruction">જમવાની સૂચના</string>
+    <string name="food_before">જમ્યા પહેલાં</string>
+    <string name="food_after">જમ્યા પછી</string>
+    <string name="food_with">જમવાની સાથે</string>
+    <string name="food_any">કોઈપણ સમયે</string>
+    <string name="prescribing_doctor">ડૉક્ટરનું નામ</string>
+    <string name="start_date">શરૂઆતની તારીખ</string>
+    <string name="end_date">અંતિમ તારીખ</string>
+    <string name="stock_count">ઉપલબ્ધ જથ્થો / સ્ટોક</string>
+    <string name="low_stock_threshold">ઓછા સ્ટોકની ચેતવણી સીમા</string>
+    <string name="low_stock_warning">દવા ઓછી છે: ફક્ત %1$d ડોઝ બાકી છે! કૃપા કરીને સમયસર લાવો.</string>
+
+    <!-- Schedules -->
+    <string name="schedule_type">દવાનો સમયગાળો</string>
+    <string name="schedule_daily">દરરોજ (નિયમિત સમય)</string>
+    <string name="schedule_weekdays">અઠવાડિયાના ચોક્કસ દિવસો</string>
+    <string name="schedule_interval">દર N દિવસે</string>
+    <string name="schedule_as_needed">જરૂર પડે ત્યારે (PRN)</string>
+    <string name="schedule_tapering">નક્કી કરેલ સમય સુધી (ટેપરિંગ)</string>
+    <string name="reminder_times">રિમાઇન્ડર સમય</string>
+    <string name="add_time">સમય ઉમેરો</string>
+    <string name="interval_days_label">દિવસોનો અંતરાલ</string>
+
+    <!-- Dose Actions & Status -->
+    <string name="action_take">લીધી</string>
+    <string name="action_snooze">10 મિનિટ પછી યાદ કરાવો</string>
+    <string name="action_skip">છોડો</string>
+    <string name="status_pending">બાકી</string>
+    <string name="status_taken">લીધેલ</string>
+    <string name="status_snoozed">સ્નૂઝ કર્યું</string>
+    <string name="status_skipped">છોડેલ</string>
+    <string name="status_missed">ચૂકી ગયા</string>
+    <string name="next_dose">આગળનો ડોઝ</string>
+    <string name="today_schedule">આજનો સમયપત્રક</string>
+    <string name="adherence_rate">નિયમિતતા દર</string>
+    <string name="weekly_adherence">7-દિવસીય નિયમિતતા</string>
+    <string name="monthly_adherence">30-દિવસીય નિયમિતતા</string>
+
+    <!-- Health Records Vault -->
+    <string name="records_title">આરોગ્ય રેકોર્ડ્સ વૉલ્ટ</string>
+    <string name="add_record">રેકોર્ડ ઉમેરો</string>
+    <string name="record_title">શીર્ષક / નિદાન</string>
+    <string name="record_date">રેકોર્ડની તારીખ</string>
+    <string name="doctor_hospital">ડૉક્ટર / હૉસ્પિટલ</string>
+    <string name="record_type">દસ્તાવેજ પ્રકાર</string>
+    <string name="type_prescription">પ્રિસ્ક્રિપ્શન</string>
+    <string name="type_lab_report">લેબ / લોહી રિપોર્ટ</string>
+    <string name="type_imaging">એક્સ-રે / સ્કેન / એમઆરઆઈ</string>
+    <string name="type_discharge_summary">ડિસ્ચાર્જ સમરી</string>
+    <string name="type_vaccination">રસીકરણ (વેક્સિનેશન)</string>
+    <string name="type_bill_insurance">બિલ / વીમો</string>
+    <string name="type_doctor_note">ડૉક્ટરની નોંધ</string>
+    <string name="type_other">અન્ય</string>
+    <string name="tags_label">ટૅગ્સ</string>
+    <string name="notes_label">તબીબી નોંધ</string>
+    <string name="attachments_label">સુરક્ષિત ફાઇલો</string>
+    <string name="attach_camera">કેમેરાથી સ્કેન કરો</string>
+    <string name="attach_gallery">ગેલેરીમાંથી પસંદ કરો</string>
+    <string name="attach_file">દસ્તાવેજ પસંદ કરો</string>
+    <string name="search_records">રેકોર્ડ, ડૉક્ટર અથવા ટૅગ શોધો...</string>
+
+    <!-- Vitals Tracker -->
+    <string name="vitals_title">વાઇટલ્સ ટ્રેકર</string>
+    <string name="log_vital">વાઇટલ નોંધો</string>
+    <string name="vital_bp">બ્લડ પ્રેશર (mmHg)</string>
+    <string name="vital_sugar">બ્લડ શુગર (mg/dL)</string>
+    <string name="vital_weight">વજન (કિગ્રા)</string>
+    <string name="vital_spo2">ઓક્સિજન SpO2 (%)</string>
+    <string name="vital_temp">તાપમાન (°F)</string>
+    <string name="systolic">સિસ્ટોલિક</string>
+    <string name="diastolic">ડાયસ્ટોલિક</string>
+
+    <!-- Appointments -->
+    <string name="appointments_title">ડૉક્ટર એપોઇન્ટમેન્ટ્સ</string>
+    <string name="add_appointment">એપોઇન્ટમેન્ટ શેડ્યૂલ કરો</string>
+    <string name="doctor_name">ડૉક્ટરનું નામ</string>
+    <string name="clinic_location">ક્લિનિક / હૉસ્પિટલ સરનામું</string>
+    <string name="appointment_datetime">તારીખ અને સમય</string>
+    <string name="upcoming_appointments">આગામી એપોઇન્ટમેન્ટ્સ</string>
+
+    <!-- Emergency Card -->
+    <string name="emergency_card">ઇમરજન્સી મેડિકલ કાર્ડ</string>
+    <string name="emergency_card_subtitle">મહત્વપૂર્ણ તબીબી માહિતી ઝડપી મેળવો</string>
+    <string name="call_emergency_contact">ઇમરજન્સી સંપર્કને કૉલ કરો</string>
+    <string name="enable_lockscreen_emergency">ઝડપી ઇમરજન્સી કાર્ડ સક્ષમ કરો</string>
+
+    <!-- Security & Privacy (DPDP Act) -->
+    <string name="app_lock">ઍપ સુરક્ષા અને લૉક</string>
+    <string name="pin_lock">4-અંક સુરક્ષા પિન</string>
+    <string name="biometric_lock">બાયોમેટ્રિક / ફિંગરપ્રિન્ટ લૉક</string>
+    <string name="flag_secure_label">તાજેતરની ઍપ્સમાં સ્ક્રીન છુપાવો (FLAG_SECURE)</string>
+    <string name="enter_pin_title">સુરક્ષા પિન દાખલ કરો</string>
+    <string name="set_pin_title">4-અંક પિન સેટ કરો</string>
+    <string name="confirm_pin_title">પિન ચકાસો</string>
+    <string name="pin_mismatch">પિન મેળ ખાતો નથી. ફરીથી પ્રયત્ન કરો.</string>
+    <string name="pin_incorrect">ખોટો પિન. ફરીથી પ્રયાસ કરો.</string>
+    <string name="pin_set_success">સુરક્ષા પિન સફળતાપૂર્વક સેટ થયો!</string>
+    <string name="dpdp_compliance_title">તમારી ગોપનીયતા અને ડેટા અધિકાર (DPDP)</string>
+    <string name="dpdp_consent_notice">દવાદાયરી સંપૂર્ણપણે 100% ઑફલાઇન કાર્ય કરે છે. તમારી તમામ દવાઓ, સ્વાસ્થ્ય રેકોર્ડ અને પરિવારની વિગતો આ જ ફોનમાં એનક્રિપ્ટેડ રહે છે. કોઈ પણ ડેટા બહાર મોકલાતો નથી.</string>
+    <string name="medical_disclaimer_title">મહત્વપૂર્ણ તબીબી અસ્વીકરણ</string>
+    <string name="medical_disclaimer_notice">દવાદાયરી ફક્ત દવાઓ યાદ રાખવા અને રેકોર્ડ સાચવવાનું ડિજિટલ સાધન છે. તે તબીબી સલાહ નથી. તમારા ડૉક્ટરની સલાહ વિના દવાનો ડોઝ ક્યારેય બદલશો નહીં.</string>
+    <string name="disclaimer_agree">હું સમજું છું અને સંમત છું</string>
+    <string name="backup_export">એનક્રિપ્ટેડ બેકઅપ નિકાસ કરો</string>
+    <string name="backup_restore">બેકઅપ ફાઇલમાંથી પુનઃસ્થાપિત કરો</string>
+    <string name="delete_all_data">બધો ડેટા કાયમ માટે કાઢી નાખો</string>
+    <string name="delete_all_warning">આ તમારા ફોનમાંથી પરિવારના તમામ સભ્યો, દવાઓ અને રેકોર્ડ્સ કાયમ માટે હટાવી દેશે.</string>
+
+    <!-- Battery Optimization -->
+    <string name="battery_optimization_title">સમયસર દવા એલર્ટ માટે</string>
+    <string name="battery_optimization_desc">ફોનની બેટરી સેવર સિસ્ટમ એલર્ટ રોકી શકે છે. સમયસર સૂચનાઓ માટે બેટરી પ્રતિબંધ હટાવો.</string>
+    <string name="disable_battery_optimization">એલર્ટ વિશ્વસનીયતા સેટ કરો</string>
+
+    <!-- Accessibility & Display -->
+    <string name="font_size_scale">અક્ષરનું કદ (વાંચવામાં સરળ)</string>
+    <string name="high_contrast">હાઇ કોન્ટ્રાસ્ટ મોડ</string>
+    <string name="language_selection">ભાષા / Language / भाषा</string>
+
+    <!-- Common Actions -->
+    <string name="save">સાચવો</string>
+    <string name="cancel">રદ કરો</string>
+    <string name="delete">કાઢી નાખો</string>
+    <string name="confirm">પુષ્ટિ કરો</string>
+    <string name="close">બંધ કરો</string>
+    <string name="share">શેર કરો</string>
+    <string name="empty_today">આજના દિવસ માટે કોઈ દવા નિર્ધારિત નથી.</string>
+    <string name="empty_records">કોઈ આરોગ્ય રેકોર્ડ મળ્યો નથી.</string>
+    <string name="empty_medicines">કોઈ દવા નોંધાયેલ નથી.</string>
+    <string name="all_done_celebration">શાબાશ! આજના બધા નિર્ધારિત ડોઝ સમયસર લેવાઈ ગયા છે.</string>
+</resources>
