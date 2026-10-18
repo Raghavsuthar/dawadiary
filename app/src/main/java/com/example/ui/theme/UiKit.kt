@@ -25,16 +25,16 @@ import androidx.compose.ui.unit.dp
 import com.example.R
 
 // ┌────────────────────────────────────────────────────────────────────┐
-// │  DawaDiary Minimalist UI Kit                                       │
+// │  DawaDiary Friendly Colour UI Kit                                       │
 // │  Shared primitives so every screen looks consistent & uncluttered. │
 // └────────────────────────────────────────────────────────────────────┘
 
-private val CardShape = RoundedCornerShape(14.dp)
-private val ChipShape = RoundedCornerShape(10.dp)
-private val FieldShape = RoundedCornerShape(12.dp)
-private val ButtonShape = RoundedCornerShape(12.dp)
+private val CardShape = RoundedCornerShape(22.dp)
+private val ChipShape = RoundedCornerShape(14.dp)
+private val FieldShape = RoundedCornerShape(16.dp)
+private val ButtonShape = RoundedCornerShape(16.dp)
 
-// ── Subtle surface container (replaces heavy bordered cards) ─────────
+// ── Soft elevated card with generous rounded corners ──────────────────
 @Composable
 fun MdSurface(
     modifier: Modifier = Modifier,
@@ -47,7 +47,7 @@ fun MdSurface(
             .padding(padding),
         color = MaterialTheme.colorScheme.surface,
         shape = CardShape,
-        tonalElevation = 0.dp,
+        tonalElevation = 2.dp,
         content = content
     )
 }
@@ -121,7 +121,7 @@ fun MdListRow(
     }
 }
 
-// ── Primary filled button (teal) ─────────────────────────────────────
+// ── Primary filled button ─────────────────────────────────────────────
 @Composable
 fun MdPrimaryButton(
     onClick: () -> Unit,
