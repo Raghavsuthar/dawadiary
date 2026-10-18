@@ -1,14 +1,10 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,11 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -44,152 +40,81 @@ fun MedicinesScreen(
     var editingMedicineWithSchedule by remember { mutableStateOf<MedicineWithSchedule?>(null) }
     var medicineToDelete by remember { mutableStateOf<MedicineEntity?>(null) }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    editingMedicineWithSchedule = null
-                    showDialog = true
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 3.dp),
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .testTag("add_medicine_screen_fab")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_medicine)
-                )
-            }
-        }
-    ) { innerPadding ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 16.dp)
+            .testTag("medicines_screen")
+            .verticalScroll(rememberScrollState())
+    ) {
+        // ── Header ──
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .testTag("medicines_screen")
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, top = 8.dp, bottom = 4.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.medicines_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = activeProfile?.name?.let { "Prescribed for $it" } ?: "Active Regimens",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = "${medicines.size} Active",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                    )
-                }
-            }
+            Text(
+                text = stringResource(R.string.medicines_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = activeProfile?.name?.let { "Prescribed for $it" } ?: "Active Regimens",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            if (medicines.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Medication,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(36.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "No Medicines Added Yet",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = stringResource(R.string.empty_medicines),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Button(
-                                onClick = {
-                                    editingMedicineWithSchedule = null
-                                    showDialog = true
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        // ── Content ──
+        if (medicines.isEmpty()) {
+            MdEmptyState(
+                icon = Icons.Default.Medication,
+                title = "No Medicines Added Yet",
+                subtitle = stringResource(R.string.empty_medicines),
+                action = {
+                    MdPrimaryButton(
+                        onClick = {
+                            editingMedicineWithSchedule = null
+                            showDialog = true
+                        },
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(stringResource(R.string.add_medicine), fontWeight = FontWeight.SemiBold)
                             }
-                        }
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 88.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(medicines, key = { it.medicine.id }) { medWithSched ->
-                        MedicineCardItem(
-                            medWithSched = medWithSched,
-                            onEdit = {
-                                editingMedicineWithSchedule = medWithSched
-                                showDialog = true
-                            },
-                            onDelete = { medicineToDelete = medWithSched.medicine }
-                        )
-                    }
+                        },
+                        fullWidth = true
+                    )
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(medicines, key = { it.medicine.id }) { medWithSched ->
+                    MedicineRow(
+                        medWithSched = medWithSched,
+                        onEdit = {
+                            editingMedicineWithSchedule = medWithSched
+                            showDialog = true
+                        },
+                        onDelete = { medicineToDelete = medWithSched.medicine }
+                    )
                 }
             }
         }
     }
 
+    // ── Add / edit dialog ──
     if (showDialog) {
         AddEditMedicineDialog(
             activeProfileId = activeProfile?.id ?: 1L,
@@ -206,59 +131,24 @@ fun MedicinesScreen(
         )
     }
 
+    // ── Delete confirm ──
     if (medicineToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { medicineToDelete = null },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.DeleteOutline,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(32.dp)
-                )
+        MdConfirmDialog(
+            title = "Delete Medicine?",
+            message = "Are you sure you want to remove ${medicineToDelete?.name}? Scheduled reminders for this medicine will be cancelled.",
+            onConfirm = {
+                medicineToDelete?.let { onDeleteMedicine(it) }
+                medicineToDelete = null
             },
-            title = {
-                Text(
-                    text = "Delete Medicine?",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            text = {
-                Text(
-                    text = "Are you sure you want to remove ${medicineToDelete?.name}? Scheduled reminders for this medicine will be cancelled.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        medicineToDelete?.let { onDeleteMedicine(it) }
-                        medicineToDelete = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { medicineToDelete = null },
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { medicineToDelete = null },
+            confirmLabel = "Delete",
+            confirmColor = MdError
         )
     }
 }
 
 @Composable
-fun MedicineCardItem(
+fun MedicineRow(
     medWithSched: MedicineWithSchedule,
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -267,14 +157,14 @@ fun MedicineCardItem(
     val sched = medWithSched.schedules.firstOrNull()
     val isLowStock = med.stockCount <= med.lowStockThreshold
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("medicine_card_${med.id}")
+            .clickable(onClick = onEdit)
+            .testTag("medicine_row_${med.id}"),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(14.dp),
+        tonalElevation = 0.dp
     ) {
         Column(
             modifier = Modifier
@@ -292,7 +182,7 @@ fun MedicineCardItem(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
@@ -306,10 +196,10 @@ fun MedicineCardItem(
                             },
                             contentDescription = med.form,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
                             text = med.name,
@@ -325,35 +215,38 @@ fun MedicineCardItem(
                     }
                 }
 
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     IconButton(
                         onClick = onEdit,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit Medicine",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                     IconButton(
                         onClick = onDelete,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.DeleteOutline,
                             contentDescription = "Delete Medicine",
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(18.dp)
+                            tint = MdError,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            MdDivider(modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -397,13 +290,14 @@ fun MedicineCardItem(
 
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (isLowStock) MedicalErrorContainer else MedicalSuccessContainer
+                    color = if (isLowStock) MdErrorContainer else MdSuccessContainer,
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 ) {
                     Text(
                         text = if (isLowStock) "Low Stock: ${med.stockCount}" else "Stock: ${med.stockCount}",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        color = if (isLowStock) MedicalError else MedicalSuccess,
+                        color = if (isLowStock) MdError else MdSuccess,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     )
                 }
@@ -438,13 +332,12 @@ fun AddEditMedicineDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            tonalElevation = 6.dp,
             modifier = Modifier
-                .fillMaxWidth(0.94f)
-                .padding(vertical = 16.dp)
+                .fillMaxWidth(0.92f)
+                .padding(vertical = 12.dp),
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier
@@ -468,9 +361,9 @@ fun AddEditMedicineDialog(
                     }
                 }
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                MdDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-                // Section 1: Medicine Details
+                // Section: Medicine Details
                 Text(
                     text = "Medicine Details",
                     style = MaterialTheme.typography.labelLarge,
@@ -478,7 +371,7 @@ fun AddEditMedicineDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = name,
                     onValueChange = {
                         name = it
@@ -488,26 +381,23 @@ fun AddEditMedicineDialog(
                     placeholder = { Text("e.g. Paracetamol, Metformin") },
                     isError = error != null,
                     supportingText = error?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
+                    MdTextField(
                         value = strength,
                         onValueChange = { strength = it },
                         label = { Text(stringResource(R.string.medicine_strength)) },
                         placeholder = { Text("500 mg") },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                        modifier = Modifier.weight(1f)
                     )
-                    OutlinedTextField(
+                    MdTextField(
                         value = doseDescription,
                         onValueChange = { doseDescription = it },
                         label = { Text("Dosage") },
                         placeholder = { Text("1 tablet") },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -518,34 +408,22 @@ fun AddEditMedicineDialog(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 val forms = listOf("Tablet", "Capsule", "Syrup", "Injection", "Drops", "Inhaler")
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    forms.take(3).forEach { f ->
-                        FilterChip(
-                            selected = form == f,
-                            onClick = { form = f },
-                            label = { Text(f) },
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    forms.drop(3).forEach { f ->
-                        FilterChip(
-                            selected = form == f,
-                            onClick = { form = f },
-                            label = { Text(f) },
-                            shape = RoundedCornerShape(8.dp)
-                        )
+                forms.chunked(3).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        row.forEach { f ->
+                            MdChip(
+                                selected = form == f,
+                                onClick = { form = f },
+                                label = { Text(f) }
+                            )
+                        }
                     }
                 }
 
-                // Section 2: Instructions & Timing
+                // Section: Schedule & Food Instructions
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Schedule & Food Instructions",
@@ -561,36 +439,32 @@ fun AddEditMedicineDialog(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    FilterChip(
+                    MdChip(
                         selected = foodInstruction == "BEFORE_FOOD",
                         onClick = { foodInstruction = "BEFORE_FOOD" },
-                        label = { Text("Before Food") },
-                        shape = RoundedCornerShape(8.dp)
+                        label = { Text("Before Food") }
                     )
-                    FilterChip(
+                    MdChip(
                         selected = foodInstruction == "AFTER_FOOD",
                         onClick = { foodInstruction = "AFTER_FOOD" },
-                        label = { Text("After Food") },
-                        shape = RoundedCornerShape(8.dp)
+                        label = { Text("After Food") }
                     )
-                    FilterChip(
+                    MdChip(
                         selected = foodInstruction == "ANY_TIME",
                         onClick = { foodInstruction = "ANY_TIME" },
-                        label = { Text("Anytime") },
-                        shape = RoundedCornerShape(8.dp)
+                        label = { Text("Anytime") }
                     )
                 }
 
-                OutlinedTextField(
+                MdTextField(
                     value = timesOfDay,
                     onValueChange = { timesOfDay = it },
-                    label = { Text("Reminder Times (24h format, comma separated)") },
+                    label = { Text("Reminder Times (24h, comma separated)") },
                     placeholder = { Text("08:00, 14:00, 20:00") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Section 3: Doctor & Stock
+                // Section: Doctor & Stock
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Doctor & Inventory",
@@ -599,31 +473,28 @@ fun AddEditMedicineDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = doctor,
                     onValueChange = { doctor = it },
                     label = { Text(stringResource(R.string.prescribing_doctor)) },
                     placeholder = { Text("e.g. Dr. Sharma") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
+                    MdTextField(
                         value = stockCountStr,
                         onValueChange = { stockCountStr = it.filter { char -> char.isDigit() } },
                         label = { Text(stringResource(R.string.stock_count)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                        modifier = Modifier.weight(1f)
                     )
-                    OutlinedTextField(
+                    MdTextField(
                         value = thresholdStr,
                         onValueChange = { thresholdStr = it.filter { char -> char.isDigit() } },
                         label = { Text(stringResource(R.string.low_stock_threshold)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                        modifier = Modifier.weight(1f)
                     )
                 }
 
@@ -634,18 +505,16 @@ fun AddEditMedicineDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
+                    MdTextButton(
                         onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
+                        label = { Text(stringResource(R.string.cancel)) }
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Button(
+                    MdPrimaryButton(
                         onClick = {
                             if (name.isBlank()) {
                                 error = "Medicine name is required"
-                                return@Button
+                                return@MdPrimaryButton
                             }
                             val stock = stockCountStr.toIntOrNull() ?: 0
                             val threshold = thresholdStr.toIntOrNull() ?: 5
@@ -678,13 +547,14 @@ fun AddEditMedicineDialog(
                             )
                             onSave(med, sched)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.save), fontWeight = FontWeight.Bold)
-                    }
+                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
+                        fullWidth = false,
+                        modifier = Modifier.align(Alignment.End)
+                    )
                 }
             }
         }
     }
 }
+
+

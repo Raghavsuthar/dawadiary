@@ -7,16 +7,11 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,7 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -83,196 +78,104 @@ fun RecordsVaultScreen(
         matchesCategory && matchesQuery
     }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 3.dp),
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .testTag("add_record_fab")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_record)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 16.dp)
+            .testTag("records_vault_screen")
+            .verticalScroll(rememberScrollState())
+    ) {
+        // ── Header ──
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, top = 8.dp, bottom = 4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.nav_records),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = activeProfile?.name?.let { "Records for $it" } ?: "Encrypted Health Vault",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+        // ── Search ──
+        MdTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text(stringResource(R.string.search_records)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        // ── Category chips ──
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            items(categories) { (key, label) ->
+                MdChip(
+                    selected = selectedCategory == key,
+                    onClick = { selectedCategory = key },
+                    label = { Text(label) }
                 )
             }
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .testTag("records_vault_screen")
-        ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.nav_records),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = activeProfile?.name?.let { "Records for $it" } ?: "Encrypted Health Vault",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Surface(
-                    shape = RoundedCornerShape(10.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Text(
-                        text = "${records.size} Saved",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                    )
-                }
-            }
 
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                placeholder = { Text(stringResource(R.string.search_records)) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                },
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                shape = RoundedCornerShape(14.dp)
-            )
-
-            // Category Filter Chips
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(categories) { (key, label) ->
-                    FilterChip(
-                        selected = selectedCategory == key,
-                        onClick = { selectedCategory = key },
-                        label = { Text(label) },
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                }
-            }
-
-            if (filteredRecords.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        shape = RoundedCornerShape(20.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (searchQuery.isNotEmpty()) Icons.Default.SearchOff else Icons.Default.FolderOpen,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = if (searchQuery.isNotEmpty()) "No Matching Records" else "No Records Stored Yet",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = if (searchQuery.isNotEmpty()) "Try adjusting your search terms or clearing the filter." else stringResource(R.string.empty_records),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            if (searchQuery.isEmpty()) {
-                                Spacer(modifier = Modifier.height(20.dp))
-                                Button(
-                                    onClick = { showAddDialog = true },
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        // ── Content ──
+        if (filteredRecords.isEmpty()) {
+            MdEmptyState(
+                icon = if (searchQuery.isNotEmpty()) Icons.Default.SearchOff else Icons.Default.FolderOpen,
+                title = if (searchQuery.isNotEmpty()) "No Matching Records" else "No Records Stored Yet",
+                subtitle = if (searchQuery.isNotEmpty()) "Try adjusting your search terms or clearing the filter." else stringResource(R.string.empty_records),
+                action = if (searchQuery.isEmpty()) {
+                    @Composable {
+                        MdPrimaryButton(
+                            onClick = { showAddDialog = true },
+                            label = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(stringResource(R.string.add_record), fontWeight = FontWeight.SemiBold)
                                 }
-                            }
-                        }
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 88.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredRecords, key = { it.record.id }) { item ->
-                        RecordCardItem(
-                            recordWithFiles = item,
-                            onClick = { viewingRecord = item },
-                            onDelete = { recordToDelete = item }
+                            },
+                            fullWidth = true
                         )
                     }
+                } else {
+                    @Composable {}
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filteredRecords, key = { it.record.id }) { item ->
+                    RecordRow(
+                        recordWithFiles = item,
+                        onClick = { viewingRecord = item },
+                        onDelete = { recordToDelete = item }
+                    )
                 }
             }
         }
     }
 
+    // ── Add record dialog ──
     if (showAddDialog) {
         AddRecordDialog(
             activeProfileId = activeProfile?.id ?: 1L,
@@ -284,6 +187,7 @@ fun RecordsVaultScreen(
         )
     }
 
+    // ── View record modal ──
     if (viewingRecord != null) {
         ViewRecordModal(
             recordWithFiles = viewingRecord!!,
@@ -291,74 +195,38 @@ fun RecordsVaultScreen(
         )
     }
 
+    // ── Delete confirm ──
     if (recordToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { recordToDelete = null },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.DeleteOutline,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(32.dp)
-                )
+        MdConfirmDialog(
+            title = "Delete Medical Record?",
+            message = "Are you sure you want to delete '${recordToDelete?.record?.title}'? Encrypted files associated with this record will also be removed.",
+            onConfirm = {
+                recordToDelete?.let { onDeleteRecord(it) }
+                recordToDelete = null
             },
-            title = {
-                Text(
-                    text = "Delete Medical Record?",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            text = {
-                Text(
-                    text = "Are you sure you want to delete '${recordToDelete?.record?.title}'? Encrypted files associated with this record will also be removed.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        recordToDelete?.let { onDeleteRecord(it) }
-                        recordToDelete = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { recordToDelete = null },
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { recordToDelete = null },
+            confirmLabel = "Delete",
+            confirmColor = MdError
         )
     }
 }
 
 @Composable
-fun RecordCardItem(
+fun RecordRow(
     recordWithFiles: RecordWithFiles,
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     val rec = recordWithFiles.record
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .testTag("record_card_${rec.id}")
+            .testTag("record_row_${rec.id}"),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(14.dp),
+        tonalElevation = 0.dp
     ) {
         Column(
             modifier = Modifier
@@ -376,7 +244,7 @@ fun RecordCardItem(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
@@ -392,10 +260,10 @@ fun RecordCardItem(
                             },
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
                             text = rec.title,
@@ -414,13 +282,13 @@ fun RecordCardItem(
 
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(40.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
                         contentDescription = "Delete Record",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(18.dp)
+                        tint = MdError,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -454,7 +322,7 @@ fun RecordCardItem(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+            MdDivider(modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(10.dp))
 
             Row(
@@ -469,7 +337,8 @@ fun RecordCardItem(
                     recordWithFiles.tags.take(3).forEach { tag ->
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 text = "#${tag.name}",
@@ -484,7 +353,8 @@ fun RecordCardItem(
                 if (recordWithFiles.files.isNotEmpty()) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -591,13 +461,12 @@ fun AddRecordDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            tonalElevation = 6.dp,
             modifier = Modifier
-                .fillMaxWidth(0.94f)
-                .padding(vertical = 16.dp)
+                .fillMaxWidth(0.92f)
+                .padding(vertical = 12.dp),
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier
@@ -621,9 +490,9 @@ fun AddRecordDialog(
                     }
                 }
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                MdDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-                // Section 1: Record Details
+                // Section: Record Information
                 Text(
                     text = "Record Information",
                     style = MaterialTheme.typography.labelLarge,
@@ -631,7 +500,7 @@ fun AddRecordDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = title,
                     onValueChange = {
                         title = it
@@ -641,8 +510,7 @@ fun AddRecordDialog(
                     placeholder = { Text("e.g. Dr. Sharma Prescription, CBC Blood Test") },
                     isError = titleError != null,
                     supportingText = titleError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Text(
@@ -659,18 +527,22 @@ fun AddRecordDialog(
                     "VACCINATION" to "Vaccine",
                     "BILL_INSURANCE" to "Bill / Insurance"
                 )
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(types) { (key, label) ->
-                        FilterChip(
-                            selected = recordType == key,
-                            onClick = { recordType = key },
-                            label = { Text(label) },
-                            shape = RoundedCornerShape(8.dp)
-                        )
+                types.chunked(3).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        row.forEach { (key, label) ->
+                            MdChip(
+                                selected = recordType == key,
+                                onClick = { recordType = key },
+                                label = { Text(label) }
+                            )
+                        }
                     }
                 }
 
-                // Section 2: Hospital & Notes
+                // Section: Doctor / Hospital & Notes
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Doctor / Hospital & Notes",
@@ -679,35 +551,34 @@ fun AddRecordDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = doctor,
                     onValueChange = { doctor = it },
                     label = { Text(stringResource(R.string.doctor_hospital)) },
                     placeholder = { Text("e.g. City Care Hospital, Dr. Verma") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = notes,
                     onValueChange = { notes = it },
                     label = { Text(stringResource(R.string.notes_label)) },
                     placeholder = { Text("Follow-up advice, diagnosis notes, dosage guidance") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    minLines = 2
+                    minLines = 2,
+                    maxLines = 3,
+                    singleLine = false
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = tagsInput,
                     onValueChange = { tagsInput = it },
                     label = { Text("Tags (comma separated)") },
                     placeholder = { Text("e.g. Cardiology, 2026, AnnualCheckup") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                // Section 3: Attachments
+                // Section: Attachments
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -731,7 +602,7 @@ fun AddRecordDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedButton(
+                    MdOutlineButton(
                         onClick = {
                             val hasCamPerm = ContextCompat.checkSelfPermission(
                                 context,
@@ -759,14 +630,19 @@ fun AddRecordDialog(
                                 }
                             }
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Camera")
-                    }
-                    OutlinedButton(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Camera")
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    MdOutlineButton(
                         onClick = {
                             photoPickerLauncher.launch(
                                 androidx.activity.result.PickVisualMediaRequest(
@@ -774,22 +650,32 @@ fun AddRecordDialog(
                                 )
                             )
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Gallery")
-                    }
-                    OutlinedButton(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Gallery")
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    MdOutlineButton(
                         onClick = { filePickerLauncher.launch(arrayOf("*/*")) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("File")
-                    }
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.AttachFile, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("File")
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 if (attachedUris.isNotEmpty()) {
@@ -832,18 +718,16 @@ fun AddRecordDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
+                    MdTextButton(
                         onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
+                        label = { Text(stringResource(R.string.cancel)) }
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Button(
+                    MdPrimaryButton(
                         onClick = {
                             if (title.isBlank()) {
                                 titleError = "Record title is required"
-                                return@Button
+                                return@MdPrimaryButton
                             }
                             val record = RecordEntity(
                                 profileId = activeProfileId,
@@ -856,11 +740,9 @@ fun AddRecordDialog(
                             val tagList = tagsInput.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                             onSave(record, attachedUris.toList(), tagList)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.save), fontWeight = FontWeight.Bold)
-                    }
+                        label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.align(Alignment.End)
+                    )
                 }
             }
         }
@@ -891,13 +773,12 @@ fun ViewRecordModal(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            tonalElevation = 8.dp,
             modifier = Modifier
-                .fillMaxWidth(0.94f)
-                .padding(vertical = 16.dp)
+                .fillMaxWidth(0.92f)
+                .padding(vertical = 12.dp),
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier
@@ -924,7 +805,8 @@ fun ViewRecordModal(
 
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.align(Alignment.Start)
                 ) {
                     Text(
                         text = "${rec.recordType.replace("_", " ")} • Date: ${rec.date}",
@@ -982,7 +864,7 @@ fun ViewRecordModal(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Image(
+                    androidx.compose.foundation.Image(
                         bitmap = previewBitmap!!.asImageBitmap(),
                         contentDescription = "Decrypted Document Preview",
                         modifier = Modifier
@@ -994,7 +876,7 @@ fun ViewRecordModal(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
+                MdPrimaryButton(
                     onClick = {
                         val file = recordWithFiles.files.firstOrNull()
                         if (file != null) {
@@ -1017,16 +899,18 @@ fun ViewRecordModal(
                             context.startActivity(Intent.createChooser(shareIntent, "Share Record Summary"))
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.share), fontWeight = FontWeight.Bold)
-                }
+                    label = {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.share), fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                )
             }
         }
     }

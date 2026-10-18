@@ -8,11 +8,8 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -22,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -89,7 +87,7 @@ fun SettingsScreen(
             .testTag("settings_screen"),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Screen Title
+        // ── Screen title ──
         Column {
             Text(
                 text = stringResource(R.string.nav_settings),
@@ -104,532 +102,398 @@ fun SettingsScreen(
             )
         }
 
-        // Section 1: Language Selection
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+        // ── Section: Language ──
+        MdSection(
+            title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Translate,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    MdIcon(Icons.Default.Translate, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = stringResource(R.string.language_selection),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Select application interface language",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(14.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    FilterChip(
-                        selected = currentLanguage == "en",
-                        onClick = { onSetLanguage("en") },
-                        label = { Text("English", fontWeight = if (currentLanguage == "en") FontWeight.Bold else FontWeight.Normal) },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = currentLanguage == "hi",
-                        onClick = { onSetLanguage("hi") },
-                        label = { Text("हिंदी", fontWeight = if (currentLanguage == "hi") FontWeight.Bold else FontWeight.Normal) },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = currentLanguage == "gu",
-                        onClick = { onSetLanguage("gu") },
-                        label = { Text("ગુજરાતી", fontWeight = if (currentLanguage == "gu") FontWeight.Bold else FontWeight.Normal) },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
+                    Text(
+                        text = stringResource(R.string.language_selection),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-            }
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MdChip(
+                selected = currentLanguage == "en",
+                onClick = { onSetLanguage("en") },
+                label = { Text("English", fontWeight = if (currentLanguage == "en") FontWeight.Bold else FontWeight.Normal) },
+                modifier = Modifier.weight(1f)
+            )
+            MdChip(
+                selected = currentLanguage == "hi",
+                onClick = { onSetLanguage("hi") },
+                label = { Text("हिंदी", fontWeight = if (currentLanguage == "hi") FontWeight.Bold else FontWeight.Normal) },
+                modifier = Modifier.weight(1f)
+            )
+            MdChip(
+                selected = currentLanguage == "gu",
+                onClick = { onSetLanguage("gu") },
+                label = { Text("ગુજરાતી", fontWeight = if (currentLanguage == "gu") FontWeight.Bold else FontWeight.Normal) },
+                modifier = Modifier.weight(1f)
+            )
         }
 
-        // Section 2: Accessibility & Display
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // ── Section: Accessibility ──
+        MdSection(
+            title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FormatSize,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    MdIcon(Icons.Default.FormatSize, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Accessibility & Comfort",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Text sizing and contrast adjustments",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "Accessibility & Comfort",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
 
+        Text(
+            text = stringResource(R.string.font_size_scale),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MdChip(
+                selected = fontScale == 1.0f,
+                onClick = { onSetFontScale(1.0f) },
+                label = { Text("Normal (100%)") },
+                modifier = Modifier.weight(1f)
+            )
+            MdChip(
+                selected = fontScale == 1.15f,
+                onClick = { onSetFontScale(1.15f) },
+                label = { Text("Large (115%)") },
+                modifier = Modifier.weight(1f)
+            )
+            MdChip(
+                selected = fontScale == 1.3f,
+                onClick = { onSetFontScale(1.3f) },
+                label = { Text("Extra Large") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.font_size_scale),
-                    style = MaterialTheme.typography.labelLarge,
+                    text = "High Contrast Mode",
                     fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    FilterChip(
-                        selected = fontScale == 1.0f,
-                        onClick = { onSetFontScale(1.0f) },
-                        label = { Text("Normal (100%)") },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = fontScale == 1.15f,
-                        onClick = { onSetFontScale(1.15f) },
-                        label = { Text("Large (115%)") },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = fontScale == 1.3f,
-                        onClick = { onSetFontScale(1.3f) },
-                        label = { Text("Extra Large") },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
-
-                // High Contrast Mode Toggle
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "High Contrast Mode",
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Darkens text and outlines for enhanced legibility",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = isHighContrast,
-                        onCheckedChange = onToggleHighContrast
-                    )
-                }
-            }
-        }
-
-        // Section 3: Privacy & App Security
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Security,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = stringResource(R.string.app_lock),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Protect health data and medical documents",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.pin_lock),
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Require 4-digit PIN or fingerprint to access",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Button(
-                            onClick = { showPinDialog = true },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                        ) {
-                            Text("Set PIN")
-                        }
-                    }
-                }
-
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.flag_secure_label),
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Blocks screenshots and masks screen in Android recents",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = isFlagSecure,
-                        onCheckedChange = onToggleFlagSecure
-                    )
-                }
-            }
-        }
-
-        // Section 4: Medication Reminder Support
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.BatteryChargingFull,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = stringResource(R.string.battery_optimization_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Ensure timely medication alarms",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = stringResource(R.string.battery_optimization_desc),
+                    text = "Darkens text and outlines for enhanced legibility",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(14.dp))
-                OutlinedButton(
-                    onClick = {
-                        try {
-                            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-                            if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
-                                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                                    data = Uri.parse("package:${context.packageName}")
-                                }
-                                context.startActivity(intent)
-                            } else {
-                                Toast.makeText(context, "Battery optimizations already disabled!", Toast.LENGTH_SHORT).show()
-                            }
-                        } catch (e: Exception) {
-                            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                            context.startActivity(intent)
+            }
+            Switch(
+                checked = isHighContrast,
+                onCheckedChange = onToggleHighContrast
+            )
+        }
+
+        // ── Section: Privacy & Security ──
+        MdSection(
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MdIcon(Icons.Default.Security, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.app_lock),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.pin_lock),
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Require 4-digit PIN or fingerprint to access",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            MdPrimaryButton(
+                onClick = { showPinDialog = true },
+                label = { Text("Set PIN") },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.flag_secure_label),
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Blocks screenshots and masks screen in Android recents",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = isFlagSecure,
+                onCheckedChange = onToggleFlagSecure
+            )
+        }
+
+        // ── Section: Reminder reliability ──
+        MdSection(
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MdIcon(Icons.Default.Alarm, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = stringResource(R.string.battery_optimization_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+
+        Text(
+            text = stringResource(R.string.battery_optimization_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        MdOutlineButton(
+            onClick = {
+                try {
+                    val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                    if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:${context.packageName}")
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
+                        context.startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "Battery optimizations already disabled!", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    context.startActivity(intent)
+                }
+            },
+            label = {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(imageVector = Icons.Default.Alarm, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(stringResource(R.string.disable_battery_optimization))
                 }
-            }
-        }
+            },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+        )
 
-        // Section 5: Encrypted Backup & Restore
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        // ── Section: Backup & Restore ──
+        MdSection(
+            title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Backup,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    MdIcon(Icons.Default.Backup, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Encrypted Backup & Restore",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Transfer health data safely to another device",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "Encrypted Backup & Restore",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
-                Text(
-                    text = "Export your encrypted records and medicines safely using password-protected encryption.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(
-                        onClick = {
-                            createBackupLauncher.launch("dawadiary_backup_${System.currentTimeMillis()}.dawa")
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(10.dp)
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+
+        Text(
+            text = "Export your encrypted records and medicines safely using password-protected encryption.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MdPrimaryButton(
+                onClick = {
+                    createBackupLauncher.launch("dawadiary_backup_${System.currentTimeMillis()}.dawa")
+                },
+                label = {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(imageVector = Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Export")
                     }
-                    OutlinedButton(
-                        onClick = {
-                            openBackupLauncher.launch(arrayOf("*/*"))
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp)
+                },
+                modifier = Modifier.weight(1f).height(46.dp)
+            )
+            MdOutlineButton(
+                onClick = {
+                    openBackupLauncher.launch(arrayOf("*/*"))
+                },
+                label = {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(imageVector = Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Restore")
                     }
+                },
+                modifier = Modifier.weight(1f).height(46.dp)
+            )
+        }
+        .padding(horizontal = 16.dp)
+
+        // ── Section: About ──
+        MdSection(
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MdIcon(Icons.Default.Info, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "About DawaDiary",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+
+        Text(
+            text = "DawaDiary is a patient-facing medication reminder and family health records vault with local AES-256 encrypted storage.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        MdTextButton(
+            onClick = { showDisclaimerInfoDialog = true },
+            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.Start)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(imageVector = Icons.Default.HealthAndSafety, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("View Medical Disclaimer & Privacy Notice")
             }
         }
 
-        // Section 6: About & Medical Disclaimer
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // ── Danger Zone: Erase all data ──
+        MdSection(
+            title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    MdIcon(Icons.Default.DeleteForever, tint = MdError)
                     Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "About DawaDiary",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "Version 1.0 • Offline-First Healthcare",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.delete_all_data),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MdError
+                    )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "DawaDiary is a patient-facing medication reminder and family health records vault with local AES-256 encrypted storage.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                TextButton(
-                    onClick = { showDisclaimerInfoDialog = true },
-                    modifier = Modifier.align(Alignment.Start)
-                ) {
-                    Icon(imageVector = Icons.Default.HealthAndSafety, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("View Medical Disclaimer & Privacy Notice")
-                }
-            }
-        }
+            },
+            action = {},
+            padding = PaddingValues(horizontal = 0.dp, vertical = 12.dp)
+        )
+        MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
 
-        // Section 7: Danger Zone - Erase All Data
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MedicalErrorContainer.copy(alpha = 0.4f)),
-            border = BorderStroke(1.dp, MedicalError.copy(alpha = 0.3f)),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MedicalError.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DeleteForever,
-                            contentDescription = null,
-                            tint = MedicalError,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = stringResource(R.string.delete_all_data),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MedicalError
-                        )
-                        Text(
-                            text = "Irreversible action",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MedicalError
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.delete_all_warning),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MedicalOnSurface
-                )
-                Spacer(modifier = Modifier.height(14.dp))
-                Button(
-                    onClick = { showDeleteConfirmDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = MedicalError, contentColor = MedicalOnError),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text("Erase All Data Permanently", fontWeight = FontWeight.Bold)
-                }
-            }
-        }
+        Text(
+            text = stringResource(R.string.delete_all_warning),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        MdPrimaryButton(
+            onClick = { showDeleteConfirmDialog = true },
+            label = { Text("Erase All Data Permanently", fontWeight = FontWeight.Bold) },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(46.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MdError, contentColor = Color.White)
+        )
     }
 
+    // ── Dialogs ──
     if (showPinDialog) {
         SetPinDialog(
             onDismiss = { showPinDialog = false },
@@ -680,24 +544,9 @@ fun SettingsScreen(
     }
 
     if (showDisclaimerInfoDialog) {
-        AlertDialog(
-            onDismissRequest = { showDisclaimerInfoDialog = false },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.HealthAndSafety,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(32.dp)
-                )
-            },
-            title = {
-                Text(
-                    text = "Medical Disclaimer & Privacy",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            },
-            text = {
+        MdInfoDialog(
+            title = "Medical Disclaimer & Privacy",
+            body = {
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -715,66 +564,21 @@ fun SettingsScreen(
                     )
                 }
             },
-            confirmButton = {
-                Button(
-                    onClick = { showDisclaimerInfoDialog = false },
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text("Understood")
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showDisclaimerInfoDialog = false }
         )
     }
 
     if (showDeleteConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirmDialog = false },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = null,
-                    tint = MedicalError,
-                    modifier = Modifier.size(36.dp)
-                )
+        MdConfirmDialog(
+            title = "Erase All Data?",
+            message = "Are you absolutely sure? All encrypted records, medicine schedules, and profiles will be wiped from this phone forever. This action cannot be undone.",
+            onConfirm = {
+                showDeleteConfirmDialog = false
+                onEraseAllData()
             },
-            title = {
-                Text(
-                    text = "Erase All Data?",
-                    fontWeight = FontWeight.Bold,
-                    color = MedicalError
-                )
-            },
-            text = {
-                Text(
-                    text = "Are you absolutely sure? All encrypted records, medicine schedules, and profiles will be wiped from this phone forever. This action cannot be undone.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDeleteConfirmDialog = false
-                        onEraseAllData()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MedicalError, contentColor = MedicalOnError),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text("Erase Everything")
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { showDeleteConfirmDialog = false },
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(stringResource(R.string.cancel))
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(20.dp)
+            onDismiss = { showDeleteConfirmDialog = false },
+            confirmLabel = "Erase Everything",
+            confirmColor = MdError
         )
     }
 }
@@ -793,13 +597,12 @@ fun SetPinDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            tonalElevation = 6.dp,
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .padding(vertical = 16.dp)
+                .padding(vertical = 12.dp),
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier
@@ -823,7 +626,7 @@ fun SetPinDialog(
                     }
                 }
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                MdDivider(modifier = Modifier.padding(vertical = 4.dp))
 
                 Text(
                     text = "Enter a 4-digit numeric PIN to secure your app",
@@ -831,7 +634,7 @@ fun SetPinDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = pin,
                     onValueChange = {
                         if (it.length <= 4) {
@@ -844,11 +647,10 @@ fun SetPinDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = confirmPin,
                     onValueChange = {
                         if (it.length <= 4) {
@@ -861,8 +663,7 @@ fun SetPinDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 if (error != null) {
@@ -881,30 +682,26 @@ fun SetPinDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
+                    MdTextButton(
                         onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
+                        label = { Text(stringResource(R.string.cancel)) }
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Button(
+                    MdPrimaryButton(
                         onClick = {
                             if (pin.length != 4) {
                                 error = "PIN must be exactly 4 digits"
-                                return@Button
+                                return@MdPrimaryButton
                             }
                             if (pin != confirmPin) {
                                 error = "PINs do not match"
-                                return@Button
+                                return@MdPrimaryButton
                             }
                             onPinSaved(pin)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("Save PIN", fontWeight = FontWeight.Bold)
-                    }
+                        label = { Text("Save PIN", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.align(Alignment.End)
+                    )
                 }
             }
         }
@@ -926,13 +723,12 @@ fun BackupPasswordDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            tonalElevation = 6.dp,
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .padding(vertical = 16.dp)
+                .padding(vertical = 12.dp),
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier
@@ -956,7 +752,7 @@ fun BackupPasswordDialog(
                     }
                 }
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                MdDivider(modifier = Modifier.padding(vertical = 4.dp))
 
                 Text(
                     text = "Enter a password to encrypt or decrypt your backup archive",
@@ -964,7 +760,7 @@ fun BackupPasswordDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                OutlinedTextField(
+                MdTextField(
                     value = password,
                     onValueChange = {
                         password = it
@@ -974,8 +770,7 @@ fun BackupPasswordDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 if (error != null) {
@@ -994,26 +789,22 @@ fun BackupPasswordDialog(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedButton(
+                    MdTextButton(
                         onClick = onDismiss,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
+                        label = { Text(stringResource(R.string.cancel)) }
+                    )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Button(
+                    MdPrimaryButton(
                         onClick = {
                             if (password.length < 4) {
                                 error = "Password must be at least 4 characters"
-                                return@Button
+                                return@MdPrimaryButton
                             }
                             onSubmit(password)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(buttonLabel, fontWeight = FontWeight.Bold)
-                    }
+                        label = { Text(buttonLabel, fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.align(Alignment.End)
+                    )
                 }
             }
         }

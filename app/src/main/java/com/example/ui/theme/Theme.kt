@@ -7,71 +7,77 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-// Authoritative Light Material 3 Color Scheme
+// ┌────────────────────────────────────────────────────────────────────┐
+// │  DawaDiary Minimalist Theme                                        │
+// │  Light mode only (health apps read best in light). High contrast   │
+// │  and dynamic color are optional accessibility layers.              │
+// └────────────────────────────────────────────────────────────────────┘
+
+// Authoritative light color scheme (minimalist)
 val LightColorScheme = lightColorScheme(
-    primary = MedicalPrimary,
-    onPrimary = MedicalOnPrimary,
-    primaryContainer = MedicalPrimaryContainer,
-    onPrimaryContainer = MedicalOnPrimaryContainer,
-    secondary = MedicalSecondary,
-    onSecondary = MedicalOnSecondary,
-    secondaryContainer = MedicalSecondaryContainer,
-    onSecondaryContainer = MedicalOnSecondaryContainer,
-    tertiary = MedicalTertiary,
-    onTertiary = MedicalOnTertiary,
-    tertiaryContainer = MedicalTertiaryContainer,
-    onTertiaryContainer = MedicalOnTertiaryContainer,
-    background = MedicalBackground,
-    onBackground = MedicalOnBackground,
-    surface = MedicalSurface,
-    onSurface = MedicalOnSurface,
-    surfaceVariant = MedicalSurfaceVariant,
-    onSurfaceVariant = MedicalOnSurfaceVariant,
-    outline = MedicalOutline,
-    outlineVariant = MedicalOutlineVariant,
-    error = MedicalError,
-    onError = MedicalOnError,
-    errorContainer = MedicalErrorContainer,
-    onErrorContainer = MedicalOnErrorContainer,
-    inverseSurface = MedicalOnSurface,
-    inverseOnSurface = MedicalSurface,
-    inversePrimary = MedicalPrimaryContainer
+    primary = MdPrimary,
+    onPrimary = MdOnPrimary,
+    primaryContainer = MdPrimaryContainer,
+    onPrimaryContainer = MdOnPrimaryContainer,
+    secondary = MdPrimary,
+    onSecondary = MdOnPrimary,
+    secondaryContainer = MdPrimaryContainer,
+    onSecondaryContainer = MdOnPrimaryContainer,
+    tertiary = MdPrimary,
+    onTertiary = MdOnPrimary,
+    tertiaryContainer = MdPrimaryContainer,
+    onTertiaryContainer = MdOnPrimaryContainer,
+    background = MdBackground,
+    onBackground = MdOnSurface,
+    surface = MdSurface,
+    onSurface = MdOnSurface,
+    surfaceVariant = MdSurfaceVariant,
+    onSurfaceVariant = MdOnSurfaceVariant,
+    outline = MdOutline,
+    outlineVariant = MdOutline,
+    error = MdError,
+    onError = MdOnError,
+    errorContainer = MdErrorContainer,
+    onErrorContainer = MdOnPrimaryContainer,
+    inverseSurface = MdOnSurface,
+    inverseOnSurface = MdSurface,
+    inversePrimary = MdPrimaryContainer
 )
 
-// High-Contrast Light Scheme for enhanced legibility
+// High-contrast light scheme for enhanced legibility
 val HighContrastLightColorScheme = lightColorScheme(
     primary = HighContrastPrimary,
-    onPrimary = MedicalOnPrimary,
-    primaryContainer = MedicalPrimaryContainer,
+    onPrimary = MdOnPrimary,
+    primaryContainer = MdPrimaryContainer,
     onPrimaryContainer = HighContrastText,
-    secondary = MedicalSecondary,
-    onSecondary = MedicalOnSecondary,
-    secondaryContainer = MedicalSecondaryContainer,
+    secondary = MdPrimary,
+    onSecondary = MdOnPrimary,
+    secondaryContainer = MdPrimaryContainer,
     onSecondaryContainer = HighContrastText,
-    tertiary = MedicalTertiary,
-    onTertiary = MedicalOnTertiary,
-    tertiaryContainer = MedicalTertiaryContainer,
+    tertiary = MdPrimary,
+    onTertiary = MdOnPrimary,
+    tertiaryContainer = MdPrimaryContainer,
     onTertiaryContainer = HighContrastText,
-    background = MedicalBackground,
+    background = MdBackground,
     onBackground = HighContrastText,
-    surface = MedicalSurface,
+    surface = MdSurface,
     onSurface = HighContrastText,
-    surfaceVariant = MedicalSurfaceVariant,
+    surfaceVariant = MdSurfaceVariant,
     onSurfaceVariant = HighContrastSecondaryText,
     outline = HighContrastOutline,
     outlineVariant = HighContrastOutline,
-    error = MedicalError,
-    onError = MedicalOnError,
-    errorContainer = MedicalErrorContainer,
-    onErrorContainer = MedicalOnErrorContainer,
+    error = MdError,
+    onError = MdOnError,
+    errorContainer = MdErrorContainer,
+    onErrorContainer = MdOnPrimaryContainer,
     inverseSurface = HighContrastText,
-    inverseOnSurface = MedicalSurface,
-    inversePrimary = MedicalPrimaryContainer
+    inverseOnSurface = MdSurface,
+    inversePrimary = MdPrimaryContainer
 )
 
 @Composable
 fun DawaDiaryTheme(
-    darkTheme: Boolean = false, // Crucial: default is strictly false (Light Mode) regardless of system setting
+    darkTheme: Boolean = false,
     highContrast: Boolean = false,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit

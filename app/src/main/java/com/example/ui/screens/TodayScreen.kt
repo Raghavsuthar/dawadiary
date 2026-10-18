@@ -1,11 +1,8 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,7 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,242 +38,126 @@ fun TodayScreen(
 ) {
     val totalDoses = doses.size
     val takenDoses = doses.count { it.doseLog.status == "TAKEN" }
-    // Requirement 6.B: Handle zero-dose days correctly. Do not misleadingly display 100% adherence when no doses were scheduled.
     val adherencePercent = if (totalDoses > 0) (takenDoses * 100) / totalDoses else 0
     val allDone = totalDoses > 0 && takenDoses == totalDoses
 
     val lowStockMeds = activeMedicines.filter { it.medicine.stockCount <= it.medicine.lowStockThreshold }
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddMedicineClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 3.dp),
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .testTag("add_medicine_fab")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_medicine)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("today_screen_list")
+            .padding(bottom = 16.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // ── Greeting header (minimalist, no card border) ──
+        item {
+            TodayHeader(
+                profile = activeProfile,
+                totalDoses = totalDoses,
+                takenDoses = takenDoses,
+                adherencePercent = adherencePercent
+            )
+        }
+
+        // ── Low stock alert (subtle banner) ──
+        if (lowStockMeds.isNotEmpty()) {
+            item {
+                MdStatusBanner(
+                    bgColor = MdWarningContainer,
+                    textColor = MdWarning,
+                    icon = Icons.Default.Warning,
+                    title = "Refill Alert",
+                    subtitle = lowStockMeds.joinToString(", ") { "${it.medicine.name} (${it.medicine.stockCount} left)" }
                 )
             }
         }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .testTag("today_screen_list"),
-            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 88.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+
+        // ── All done celebration (subtle) ──
+        if (allDone) {
             item {
-                TodayHeaderCard(
-                    profile = activeProfile,
-                    totalDoses = totalDoses,
-                    takenDoses = takenDoses,
-                    adherencePercent = adherencePercent
+                MdStatusBanner(
+                    bgColor = MdSuccessContainer,
+                    textColor = MdSuccess,
+                    icon = Icons.Default.CheckCircle,
+                    title = "All Doses Taken Today",
+                    subtitle = stringResource(R.string.all_done_celebration)
                 )
             }
+        }
 
-            if (lowStockMeds.isNotEmpty()) {
-                item {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
-                        ),
-                        border = BorderStroke(1.dp, MedicalWarning.copy(alpha = 0.4f)),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(MedicalWarningContainer),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = null,
-                                    tint = MedicalWarning,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Refill Alert",
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MedicalOnSurface
-                                )
-                                Text(
-                                    text = lowStockMeds.joinToString(", ") { "${it.medicine.name} (${it.medicine.stockCount} left)" },
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MedicalOnSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (allDone) {
-                item {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = MedicalSuccessContainer),
-                        border = BorderStroke(1.dp, MedicalSuccess.copy(alpha = 0.3f)),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .clip(CircleShape)
-                                    .background(MedicalSuccess.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = MedicalSuccess,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column {
-                                Text(
-                                    text = "All Doses Taken Today",
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MedicalOnSuccessContainer
-                                )
-                                Text(
-                                    text = stringResource(R.string.all_done_celebration),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MedicalOnSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+        // ── Schedule section ──
+        item {
+            MdSection(
+                title = {
                     Text(
                         text = stringResource(R.string.today_schedule),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                },
+                action = {
                     if (totalDoses > 0) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Text(
-                                text = "$takenDoses of $totalDoses Logged",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
+                        Text(
+                            text = "$takenDoses of $totalDoses Logged",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
-                }
-            }
+                },
+                padding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+            )
+            MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+        }
 
-            if (doses.isEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(56.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Medication,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "No Doses Scheduled for Today",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = stringResource(R.string.empty_today),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = onAddMedicineClick,
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                            ) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(stringResource(R.string.add_medicine), fontWeight = FontWeight.SemiBold)
-                            }
-                        }
-                    }
-                }
-            } else {
-                items(doses, key = { it.doseLog.id }) { doseWithMed ->
-                    DoseCard(
-                        doseWithMedicine = doseWithMed,
-                        onTaken = { onMarkTaken(doseWithMed.doseLog.id, doseWithMed.medicine.id) },
-                        onSnooze = { onMarkSnooze(doseWithMed) },
-                        onSkip = { onMarkSkip(doseWithMed.doseLog.id) }
-                    )
-                }
+        // ── Empty / doses ──
+        if (doses.isEmpty()) {
+            item {
+                MdEmptyState(
+                    icon = Icons.Default.Medication,
+                    title = "No Doses Scheduled for Today",
+                    subtitle = stringResource(R.string.empty_today),
+                    action = {
+                        MdPrimaryButton(
+                            onClick = onAddMedicineClick,
+                            label = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(stringResource(R.string.add_medicine), fontWeight = FontWeight.SemiBold)
+                                }
+                            },
+                            fullWidth = true
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        } else {
+            items(doses, key = { it.doseLog.id }) { doseWithMed ->
+                DoseCard(
+                    doseWithMedicine = doseWithMed,
+                    onTaken = { onMarkTaken(doseWithMed.doseLog.id, doseWithMed.medicine.id) },
+                    onSnooze = { onMarkSnooze(doseWithMed) },
+                    onSkip = { onMarkSkip(doseWithMed.doseLog.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun TodayHeaderCard(
+fun TodayHeader(
     profile: ProfileEntity?,
     totalDoses: Int,
     takenDoses: Int,
@@ -290,117 +171,95 @@ fun TodayHeaderCard(
         else -> "Good evening"
     }
 
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
         ) {
+            Column {
+                Text(
+                    text = todayFormatted,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$greeting, ${profile?.name ?: "Family"}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            MdAvatar(
+                initials = profile?.name?.take(1) ?: "D",
+                size = 40.dp,
+                modifier = Modifier.align(Alignment.Top)
+            )
+        }
+
+        if (totalDoses > 0) {
+            Spacer(modifier = Modifier.height(16.dp))
+            MdDivider(modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(12.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text(
-                        text = todayFormatted,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "$greeting, ${profile?.name ?: "Family"}",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = profile?.name?.take(1) ?: "D",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (totalDoses > 0) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.adherence_rate),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "$takenDoses of $totalDoses doses taken",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = if (adherencePercent == 100) MedicalSuccessContainer else MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Text(
-                            text = "$adherencePercent%",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = if (adherencePercent == 100) MedicalSuccess else MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                LinearProgressIndicator(
-                    progress = { takenDoses.toFloat() / totalDoses },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                        .clip(RoundedCornerShape(5.dp)),
-                    color = if (adherencePercent == 100) MedicalSuccess else MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            } else {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.EventAvailable,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = "No doses scheduled for today",
+                        text = stringResource(R.string.adherence_rate),
                         style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "$takenDoses of $totalDoses doses taken",
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                MdStatusChip(
+                    bgColor = if (adherencePercent == 100) MdSuccessContainer else MdPrimaryContainer,
+                    textColor = if (adherencePercent == 100) MdSuccess else MdPrimary,
+                    text = "$adherencePercent%",
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { takenDoses.toFloat() / totalDoses },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp)),
+                color = if (adherencePercent == 100) MdSuccess else MdPrimary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.EventAvailable,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "No doses scheduled for today",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -420,22 +279,24 @@ fun DoseCard(
         .atZone(ZoneId.systemDefault())
         .format(DateTimeFormatter.ofPattern("hh:mm a"))
 
+    val isActionable = dose.status == "PENDING" || dose.status == "SNOOZED"
+
     val (statusBadgeBg, statusBadgeText, statusIcon) = when (dose.status) {
-        "TAKEN" -> Triple(MedicalSuccessContainer, MedicalSuccess, Icons.Default.CheckCircle)
-        "SNOOZED" -> Triple(MedicalWarningContainer, MedicalWarning, Icons.Default.Snooze)
+        "TAKEN" -> Triple(MdSuccessContainer, MdSuccess, Icons.Default.CheckCircle)
+        "SNOOZED" -> Triple(MdWarningContainer, MdWarning, Icons.Default.Snooze)
         "SKIPPED" -> Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant, Icons.Default.Close)
-        "MISSED" -> Triple(MedicalErrorContainer, MedicalError, Icons.Default.Warning)
-        else -> Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, Icons.Default.Schedule)
+        "MISSED" -> Triple(MdErrorContainer, MdError, Icons.Default.Warning)
+        else -> Triple(MdPrimaryContainer, MdPrimary, Icons.Default.Schedule)
     }
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("dose_card_${dose.id}")
+            .clickable { /* card itself is not an action; buttons handle input */ }
+            .testTag("dose_card_${dose.id}"),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(14.dp),
+        tonalElevation = 0.dp
     ) {
         Column(
             modifier = Modifier
@@ -453,7 +314,7 @@ fun DoseCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
@@ -467,10 +328,10 @@ fun DoseCard(
                             },
                             contentDescription = med.form,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
                             text = med.name,
@@ -494,29 +355,12 @@ fun DoseCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = statusBadgeBg
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = statusIcon,
-                                contentDescription = null,
-                                tint = statusBadgeText,
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = dose.status,
-                                color = statusBadgeText,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
+                    MdStatusChip(
+                        bgColor = statusBadgeBg,
+                        textColor = statusBadgeText,
+                        icon = statusIcon,
+                        text = dose.status
+                    )
                 }
             }
 
@@ -542,56 +386,99 @@ fun DoseCard(
                 )
             }
 
-            if (dose.status == "PENDING" || dose.status == "SNOOZED") {
+            if (isActionable) {
                 Spacer(modifier = Modifier.height(14.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
+                MdDivider(modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
+                    MdPrimaryButton(
                         onClick = onTaken,
-                        modifier = Modifier
-                            .weight(1.5f)
-                            .height(48.dp)
-                            .testTag("action_take_${dose.id}"),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MedicalSuccess,
-                            contentColor = MedicalOnSuccess
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = stringResource(R.string.action_take), fontWeight = FontWeight.Bold)
-                    }
-
-                    OutlinedButton(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(text = stringResource(R.string.action_take), fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        fullWidth = true,
+                        modifier = Modifier.weight(1.5f)
+                    )
+                    MdOutlineButton(
                         onClick = onSnooze,
-                        modifier = Modifier
-                            .weight(1.2f)
-                            .height(48.dp)
-                            .testTag("action_snooze_${dose.id}"),
-                        border = BorderStroke(1.dp, MedicalWarning),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Snooze, contentDescription = null, tint = MedicalWarning, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "10m", color = MedicalWarning, fontWeight = FontWeight.Bold)
-                    }
-
-                    TextButton(
+                        label = {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.Snooze, contentDescription = null, tint = MdWarning, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(text = "10m", color = MdWarning, fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        modifier = Modifier.weight(1.2f)
+                    )
+                    MdTextButton(
                         onClick = onSkip,
-                        modifier = Modifier
-                            .weight(0.9f)
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(text = stringResource(R.string.action_skip), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                        label = { Text(text = stringResource(R.string.action_skip), color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        modifier = Modifier.weight(0.9f)
+                    )
                 }
+            }
+        }
+    }
+}
+
+// ── Subtle colored banner (replaces bordered alert cards) ────────────
+@Composable
+private fun MdStatusBanner(
+    bgColor: Color,
+    textColor: Color,
+    icon: androidx.compose.material3.ImageVector,
+    title: String,
+    subtitle: String
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = bgColor,
+        shape = RoundedCornerShape(12.dp),
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(36.dp).clip(CircleShape).background(textColor.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = textColor,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = textColor.copy(alpha = 0.9f)
+                )
             }
         }
     }
