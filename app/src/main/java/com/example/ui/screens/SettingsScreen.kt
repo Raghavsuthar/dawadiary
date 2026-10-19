@@ -106,6 +106,14 @@ fun SettingsScreen(
             )
         }
 
+        MdVisualHero(
+            title = "Your app, your comfort",
+            subtitle = "Personalise accessibility, privacy and health-data preferences.",
+            icon = Icons.Default.Tune,
+            accent = MdBlue,
+            tint = MdBlueContainer
+        )
+
         // ── Section: Language ──
         MdSection(
             title = {
