@@ -69,6 +69,13 @@ fun MedicinesScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "Your schedule, stock and reminders in one place.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
