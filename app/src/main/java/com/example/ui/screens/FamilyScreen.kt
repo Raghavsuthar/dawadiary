@@ -81,6 +81,14 @@ fun FamilyScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+        MdVisualHero(
+            title = "Care is better together",
+            subtitle = "Switch profiles and keep your family's health details close.",
+            icon = Icons.Default.Groups,
+            accent = MdMint,
+            tint = MdMintContainer,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
         // Active profile card
