@@ -55,7 +55,16 @@ fun TodayScreen(
         contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // ── Greeting header (minimalist, no card border) ──
+        item {
+            MdVisualHero(
+                title = "A healthier day starts here",
+                subtitle = "Small reminders. Better routines. More peace of mind.",
+                icon = Icons.Default.Favorite,
+                accent = MdCoral,
+                tint = MdCoralContainer
+            )
+        }
+
         item {
             TodayHeader(
                 profile = activeProfile,
