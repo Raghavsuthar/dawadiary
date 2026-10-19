@@ -77,6 +77,14 @@ fun MedicinesScreen(
                 fontWeight = FontWeight.SemiBold
             )
         }
+        MdVisualHero(
+            title = "Your medicine routine",
+            subtitle = "Keep doses, schedules and refills in one simple place.",
+            icon = Icons.Default.Medication,
+            accent = MdBlue,
+            tint = MdBlueContainer,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
         // ── Content ──
