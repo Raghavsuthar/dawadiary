@@ -34,6 +34,72 @@ private val ChipShape = RoundedCornerShape(14.dp)
 private val FieldShape = RoundedCornerShape(16.dp)
 private val ButtonShape = RoundedCornerShape(16.dp)
 
+
+// ── Friendly illustrated hero banner ──────────────────────────────────
+// Uses vector artwork from Material icons so it stays crisp, lightweight,
+// accessible and bundled with the app (no remote image/network dependency).
+@Composable
+fun MdVisualHero(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    accent: Color = MdPrimary,
+    tint: Color = MdPrimaryContainer,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp),
+        color = tint,
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MdOnSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MdOnSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(76.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.78f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(58.dp)
+                        .clip(CircleShape)
+                        .background(accent.copy(alpha = 0.13f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = accent,
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
 // ── Soft elevated card with generous rounded corners ──────────────────
 @Composable
 fun MdSurface(
