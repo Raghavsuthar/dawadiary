@@ -108,6 +108,14 @@ fun RecordsVaultScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+        MdVisualHero(
+            title = "Your health, safely organised",
+            subtitle = "Prescriptions, reports and important documents together.",
+            icon = Icons.Default.FolderOpen,
+            accent = MdPurple,
+            tint = MdPurpleContainer,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
         // ── Search ──
