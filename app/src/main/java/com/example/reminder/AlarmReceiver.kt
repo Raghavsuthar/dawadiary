@@ -14,93 +14,42 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AlarmReceiver : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
-        val action = intent.action ?: return
-        val appContext = context.applicationContext
+        val doseId = intent.getLongExtra("dose_id", -1L)
+        val medicineId = intent.getLongExtra("medicine_id", -1L)
+        val medicineName = intent.getStringExtra("medicine_name") ?: "Medication"
+        val doseDesc = intent.getStringExtra("dose_desc") ?: "Scheduled dose"
+        val profileName = intent.getStringExtra("profile_name") ?: "Patient"
 
-        when (action) {
-            ReminderManager.ACTION_REMINDER -> {
-                val doseId = intent.getLongExtra(ReminderManager.EXTRA_DOSE_ID, -1L)
-                val medicineId = intent.getLongExtra(ReminderManager.EXTRA_MEDICINE_ID, -1L)
-                val medicineName = intent.getStringExtra(ReminderManager.EXTRA_MEDICINE_NAME) ?: "Medicine"
-                val medicineDose = intent.getStringExtra(ReminderManager.EXTRA_MEDICINE_DOSE) ?: ""
-                val profileName = intent.getStringExtra(ReminderManager.EXTRA_PROFILE_NAME) ?: "Patient"
-
-                if (doseId == -1L) return
-
-                showMedicineNotification(
-                    context = appContext,
-                    doseId = doseId,
-                    medicineId = medicineId,
-                    medicineName = medicineName,
-                    medicineDose = medicineDose,
-                    profileName = profileName
-                )
-
-                ReminderManager.scheduleEscalationCheck(appContext, doseId, medicineName, profileName)
-            }
-
-            ReminderManager.ACTION_ESCALATE -> {
-                val doseId = intent.getLongExtra(ReminderManager.EXTRA_DOSE_ID, -1L)
-                val medicineName = intent.getStringExtra(ReminderManager.EXTRA_MEDICINE_NAME) ?: "Medicine"
-                val profileName = intent.getStringExtra(ReminderManager.EXTRA_PROFILE_NAME) ?: "Patient"
-
-                if (doseId == -1L) return
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    val db = AppDatabase.getInstance(appContext)
-                    val dose = db.doseLogDao().getDoseById(doseId)
-                    if (dose != null && dose.status == "PENDING") {
-                        db.doseLogDao().updateDoseStatus(doseId, "MISSED", System.currentTimeMillis())
-                        showMissedNotification(appContext, doseId, medicineName, profileName)
-                    }
-                }
-            }
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-    }
-
-    private fun showMedicineNotification(
-        context: Context,
-        doseId: Long,
-        medicineId: Long,
-        medicineName: String,
-        medicineDose: String,
-        profileName: String
-    ) {
-        ReminderManager.initNotificationChannels(context)
-
-        val contentIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra("navigate_to", "today")
-            putExtra("highlight_dose_id", doseId)
-        }
-        val contentPendingIntent = PendingIntent.getActivity(
+        val openAppPendingIntent = PendingIntent.getActivity(
             context,
             doseId.toInt(),
-            contentIntent,
+            openAppIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val takenIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-            action = NotificationActionReceiver.ACTION_TAKE
-            putExtra(ReminderManager.EXTRA_DOSE_ID, doseId)
-            putExtra(ReminderManager.EXTRA_MEDICINE_ID, medicineId)
+        val takeIntent = Intent(context, NotificationActionReceiver::class.java).apply {
+            action = "ACTION_TAKE"
+            putExtra("dose_id", doseId)
+            putExtra("medicine_id", medicineId)
         }
-        val takenPendingIntent = PendingIntent.getBroadcast(
+        val takePendingIntent = PendingIntent.getBroadcast(
             context,
             (doseId * 10 + 1).toInt(),
-            takenIntent,
+            takeIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val snoozeIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-            action = NotificationActionReceiver.ACTION_SNOOZE
-            putExtra(ReminderManager.EXTRA_DOSE_ID, doseId)
-            putExtra(ReminderManager.EXTRA_MEDICINE_ID, medicineId)
-            putExtra(ReminderManager.EXTRA_MEDICINE_NAME, medicineName)
-            putExtra(ReminderManager.EXTRA_MEDICINE_DOSE, medicineDose)
-            putExtra(ReminderManager.EXTRA_PROFILE_NAME, profileName)
+            action = "ACTION_SNOOZE"
+            putExtra("dose_id", doseId)
+            putExtra("medicine_id", medicineId)
+            putExtra("medicine_name", medicineName)
+            putExtra("dose_desc", doseDesc)
+            putExtra("profile_name", profileName)
         }
         val snoozePendingIntent = PendingIntent.getBroadcast(
             context,
@@ -109,51 +58,19 @@ class AlarmReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val skipIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-            action = NotificationActionReceiver.ACTION_SKIP
-            putExtra(ReminderManager.EXTRA_DOSE_ID, doseId)
-        }
-        val skipPendingIntent = PendingIntent.getBroadcast(
-            context,
-            (doseId * 10 + 3).toInt(),
-            skipIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notification = NotificationCompat.Builder(context, ReminderManager.CHANNEL_REMINDERS_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Time to take medicine: $medicineName")
-            .setContentText("For $profileName • $medicineDose")
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(contentPendingIntent)
-            .setAutoCancel(true)
-            .addAction(android.R.drawable.checkbox_on_background, "Taken", takenPendingIntent)
-            .addAction(android.R.drawable.ic_popup_sync, "Snooze 10m", snoozePendingIntent)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Skip", skipPendingIntent)
-            .setFullScreenIntent(contentPendingIntent, true)
-            .build()
-
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(doseId.toInt(), notification)
-    }
-
-    private fun showMissedNotification(
-        context: Context,
-        doseId: Long,
-        medicineName: String,
-        profileName: String
-    ) {
-        val notification = NotificationCompat.Builder(context, ReminderManager.CHANNEL_REMINDERS_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Missed Dose Alert: $medicineName")
-            .setContentText("A scheduled dose for $profileName was not logged.")
+        val notification = NotificationCompat.Builder(context, ReminderManager.CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_popup_reminder)
+            .setContentTitle("Dose Reminder: $medicineName")
+            .setContentText("For $profileName • $doseDesc")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
+            .setContentIntent(openAppPendingIntent)
+            .addAction(android.R.drawable.checkbox_on_background, "Take Now", takePendingIntent)
+            .addAction(android.R.drawable.ic_lock_idle_alarm, "Snooze 10m", snoozePendingIntent)
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify((doseId + 100000).toInt(), notification)
+        notificationManager.notify((ReminderManager.NOTIFICATION_ID_PREFIX + doseId).toInt(), notification)
     }
 }

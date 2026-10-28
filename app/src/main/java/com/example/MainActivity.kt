@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,12 +15,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -57,17 +52,18 @@ class MainActivity : FragmentActivity() {
             )
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-
         setContent {
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(
+                            this@MainActivity,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+            }
             val isFlagSecure by viewModel.isFlagSecureEnabled.collectAsStateWithLifecycle()
             val fontScale by viewModel.fontScale.collectAsStateWithLifecycle()
             val isHighContrast by viewModel.isHighContrast.collectAsStateWithLifecycle()
@@ -87,7 +83,6 @@ class MainActivity : FragmentActivity() {
                 }
             }
 
-            // Apply custom font scaling for elderly comfort
             val currentDensity = LocalDensity.current
             val customDensity = remember(currentDensity, fontScale) {
                 Density(currentDensity.density, fontScale)
@@ -104,7 +99,6 @@ class MainActivity : FragmentActivity() {
                             onRequestBiometric = { showBiometricPrompt() }
                         )
 
-                        // Lock Screen overlay
                         if (isLocked) {
                             LockScreen(
                                 onUnlockWithPin = { pin -> viewModel.unlockApp(pin) },
@@ -112,7 +106,6 @@ class MainActivity : FragmentActivity() {
                             )
                         }
 
-                        // First-run DPDP Consent & Medical Disclaimer
                         ConsentDisclaimerDialog(
                             showConsent = !isConsentAccepted,
                             onAcceptConsent = { viewModel.acceptConsent() },
@@ -169,15 +162,13 @@ fun DawaDiaryAppContent(
     val isHighContrast by viewModel.isHighContrast.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Minimalist top strip (replaces TopAppBar + divider)
         MdTopStrip(
             profileName = activeProfile?.name,
             profileInitial = activeProfile?.name?.take(1) ?: "D",
-            onProfileClick = { /* profile switcher kept minimal — tap to open family screen */ currentTab = "family" },
+            onProfileClick = { currentTab = "family" },
             onEmergencyClick = { showEmergencyDialog = true }
         )
 
-        // Content
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -241,7 +232,6 @@ fun DawaDiaryAppContent(
             }
         }
 
-        // Minimalist bottom navigation (replaces Scaffold bottomBar)
         MdBottomNav(
             currentTab = currentTab,
             onTabClick = { currentTab = it }

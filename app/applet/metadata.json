@@ -1,6 +1,0 @@
-{
-  "name": "DawaDiary",
-  "description": "A polished, accessible light mode healthcare medication and medical records manager",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

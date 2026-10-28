@@ -48,7 +48,6 @@ fun EmergencyCardDialog(
                     .padding(20.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Header with Emergency Cross
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -93,7 +92,6 @@ fun EmergencyCardDialog(
                 MdDivider()
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Patient Info Card
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -103,93 +101,170 @@ fun EmergencyCardDialog(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = profile?.name ?: "Family Member",
+                            text = profile?.name ?: "Patient Name",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Relationship: ${profile?.relationship ?: "Self"} • Blood Group: ${profile?.bloodGroup?.ifBlank { "Unknown" } ?: "Unknown"}",
+                            text = "${profile?.relationship ?: "Self"} • ${profile?.gender ?: "Not specified"} • DOB: ${profile?.dob ?: "N/A"}",
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Badge(containerColor = MaterialTheme.colorScheme.error) {
+                                Text(
+                                    text = "Blood Group: ${profile?.bloodGroup?.ifBlank { "Unknown" } ?: "Unknown"}",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onError,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Known Allergies (Crucial)
                 Text(
-                    text = "ALLERGIES",
-                    style = MaterialTheme.typography.labelLarge,
+                    text = "Emergency Contact",
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = profile?.allergies?.ifBlank { "No known drug allergies reported" }
-                        ?: "No known drug allergies reported",
-                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Phone,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = profile?.emergencyContactName?.ifBlank { "None Specified" } ?: "None Specified",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = profile?.emergencyContactPhone?.ifBlank { "Add in Family Screen" } ?: "Add in Family Screen",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Critical Allergies",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = profile?.allergies?.ifBlank { "No known allergies documented." } ?: "No known allergies documented.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (!profile?.allergies.isNullOrBlank()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Chronic Conditions
                 Text(
-                    text = "CHRONIC MEDICAL CONDITIONS",
-                    style = MaterialTheme.typography.labelLarge,
+                    text = "Chronic Conditions",
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = profile?.chronicConditions?.ifBlank { "None reported" } ?: "None reported",
-                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = profile?.chronicConditions?.ifBlank { "No chronic conditions documented." } ?: "No chronic conditions documented.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Emergency Contact
                 Text(
-                    text = "EMERGENCY CONTACT",
-                    style = MaterialTheme.typography.labelLarge,
+                    text = "Active Medications (${activeMedicines.size})",
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${profile?.emergencyContactName?.ifBlank { "Emergency Contact" } ?: "Emergency Contact"}: ${profile?.emergencyContactPhone?.ifBlank { "Not provided" } ?: "Not provided"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                if (activeMedicines.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                if (activeMedicines.isEmpty()) {
                     Text(
-                        text = "CURRENT MEDICATIONS",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
+                        text = "No active medications listed.",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    for (medWithSchedule in activeMedicines) {
-                        Text(
-                            text = "• ${medWithSchedule.medicine.name} (${medWithSchedule.medicine.strength}) - ${medWithSchedule.medicine.doseDescription}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for (med in activeMedicines) {
+                            Card(
+                                shape = RoundedCornerShape(10.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = med.medicine.name,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = "${med.medicine.doseDescription} • ${med.medicine.strength}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Text(
+                                        text = med.medicine.form,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
                 MdPrimaryButton(
                     onClick = onDismiss,
-                    label = { Text("Close", fontWeight = FontWeight.Bold) },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Done", fontWeight = FontWeight.Bold) },
+                    fullWidth = true
                 )
             }
         }

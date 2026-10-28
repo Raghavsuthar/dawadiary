@@ -1,85 +1,28 @@
 <resources>
     <string name="app_name">DawaDiary</string>
-
-    <!-- Navigation -->
-    <string name="nav_today">Today</string>
-    <string name="nav_medicines">Medicines</string>
-    <string name="nav_records">Records</string>
-    <string name="nav_family">Family</string>
-    <string name="nav_settings">Settings</string>
-
-    <!-- Today Screen -->
+    <string name="all_profiles">All Family Profiles</string>
+    <string name="emergency_card">Emergency Medical Card</string>
     <string name="today_schedule">Today\'s Schedule</string>
-    <string name="all_done_celebration">All scheduled medicines have been taken today.</string>
-    <string name="empty_today">No doses scheduled for today.</string>
-    <string name="adherence_rate">Adherence</string>
-    <string name="food_before">Before food</string>
-    <string name="food_after">After food</string>
-    <string name="food_with">With food</string>
-    <string name="food_any">Any time</string>
+    <string name="adherence_rate">Today\'s Adherence</string>
+    <string name="all_done_celebration">Great job staying on track with your health today!</string>
+    <string name="empty_today">No medicine doses scheduled for this profile today.</string>
+    <string name="add_medicine">Add Medicine</string>
     <string name="action_take">Take</string>
     <string name="action_skip">Skip</string>
-
-    <!-- Medicines Screen -->
-    <string name="medicines_title">Medicines</string>
-    <string name="add_medicine">Add Medicine</string>
+    <string name="food_before">Take Before Food</string>
+    <string name="food_after">Take After Food</string>
+    <string name="food_with">Take With Food</string>
+    <string name="food_any">Anytime</string>
+    <string name="add_profile">Add Member</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="medicines_title">Medicines &amp; Regimens</string>
+    <string name="empty_medicines">No active medications found. Tap below to add a new medicine to your schedule.</string>
     <string name="edit_medicine">Edit Medicine</string>
-    <string name="empty_medicines">No medicines added yet.</string>
-    <string name="medicine_name">Medicine Name</string>
-    <string name="medicine_strength">Strength (e.g. 500mg)</string>
+    <string name="medicine_name">Medicine Name *</string>
+    <string name="medicine_strength">Strength (e.g. 500 mg)</string>
     <string name="food_instruction">Food Instruction</string>
     <string name="prescribing_doctor">Prescribing Doctor</string>
     <string name="stock_count">Current Stock</string>
-    <string name="low_stock_threshold">Low Stock Warning Threshold</string>
-
-    <!-- Records Screen -->
-    <string name="search_records">Search records by title, doctor, tags…</string>
-    <string name="empty_records">No medical records stored yet. Add prescriptions or lab reports.</string>
-    <string name="add_record">Add Medical Record</string>
-    <string name="record_title">Record Title (e.g. Blood Test, Prescription)</string>
-    <string name="doctor_hospital">Doctor / Clinic / Hospital Name</string>
-    <string name="share">Share</string>
-
-    <!-- Family / Profiles Screen -->
-    <string name="profiles_title">Family Members</string>
-    <string name="all_profiles">Family Profiles</string>
-    <string name="add_profile">Add Member</string>
-    <string name="edit_profile">Edit Member</string>
-    <string name="emergency_card">Emergency Medical Card</string>
-    <string name="vitals_title">Health Vitals</string>
-    <string name="log_vital">Log Vital</string>
-    <string name="appointments_title">Doctor Appointments</string>
-    <string name="add_appointment">Add Appointment</string>
-    <string name="doctor_name">Doctor Name</string>
-    <string name="clinic_location">Clinic / Hospital</string>
-    <string name="notes_label">Notes &amp; Advice</string>
-    <string name="field_name">Full Name</string>
-    <string name="field_relationship">Relationship</string>
-    <string name="field_allergies">Known Allergies</string>
-    <string name="field_chronic_conditions">Chronic Conditions</string>
-    <string name="field_emergency_contact">Emergency Contact Phone</string>
-
-    <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
-    <string name="language_selection">Language</string>
-    <string name="font_size_scale">Display &amp; Font Size</string>
-    <string name="app_lock">App Security</string>
-    <string name="pin_lock">4-Digit Security PIN</string>
-    <string name="flag_secure_label">Screenshot &amp; Screen Recording Protection</string>
-    <string name="battery_optimization_title">Reliable Medication Alarms</string>
-    <string name="battery_optimization_desc">Ensure reminders ring on time by exempting DawaDiary from aggressive background battery restrictions.</string>
-    <string name="disable_battery_optimization">Exempt from Battery Optimization</string>
-    <string name="delete_all_data">Danger Zone: Erase Data</string>
-    <string name="delete_all_warning">This will irreversibly delete all family profiles, medication schedules, dose history, and encrypted health records.</string>
-    <string name="medical_disclaimer_notice">Medical Disclaimer</string>
-    <string name="dpdp_consent_notice">Data Privacy Notice</string>
-    <string name="set_pin_title">Set App Security PIN</string>
-
-    <!-- Common Actions -->
-    <string name="save">Save</string>
-    <string name="cancel">Cancel</string>
-    <string name="delete">Delete</string>
-    <string name="take_dose">Take</string>
-    <string name="snooze_dose">Snooze</string>
-    <string name="skip_dose">Skip</string>
+    <string name="low_stock_threshold">Low Stock Alert At</string>
 </resources>

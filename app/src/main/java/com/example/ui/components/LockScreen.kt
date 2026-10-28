@@ -16,8 +16,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.MdPrimary
-import com.example.ui.theme.MdPrimaryButton
 
 @Composable
 fun LockScreen(
@@ -61,6 +59,7 @@ fun LockScreen(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Enter your 4-digit PIN or authenticate with Biometrics",
                 style = MaterialTheme.typography.bodyMedium,

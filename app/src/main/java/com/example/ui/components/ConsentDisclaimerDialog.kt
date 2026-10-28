@@ -5,16 +5,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HealthAndSafety
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.ui.theme.MdDivider
 import com.example.ui.theme.MdPrimaryButton
 
 @Composable
@@ -24,72 +25,120 @@ fun ConsentDisclaimerDialog(
     showDisclaimer: Boolean,
     onAcceptDisclaimer: () -> Unit
 ) {
-    if (!showConsent && !showDisclaimer) return
-
-    val isConsentPhase = showConsent
-
-    Dialog(
-        onDismissRequest = { /* mandatory modal */ },
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .testTag("consent_disclaimer_dialog")
+    if (showConsent) {
+        Dialog(
+            onDismissRequest = { /* mandatory on first launch */ },
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         ) {
-            Column(
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.HealthAndSafety,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = if (isConsentPhase) "Data Privacy & Security" else "Medical Disclaimer",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = if (isConsentPhase) {
-                        "DawaDiary stores your health data, medication schedules, and clinical records directly on your device. We respect your medical privacy:\n\n" +
-                                "• Zero third-party tracker or ad network sharing.\n" +
-                                "• On-device database and encrypted backups.\n" +
-                                "• Optional hardware-backed biometric screen lock.\n\n" +
-                                "By continuing, you consent to local data processing on your device."
-                    } else {
-                        "DawaDiary is a digital health diary and medication schedule assistant:\n\n" +
-                                "• It does not replace professional medical diagnosis, treatment, or advice.\n" +
-                                "• Always follow the advice of your licensed doctor or pharmacist.\n" +
-                                "• In case of emergency, contact local emergency healthcare services immediately."
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                MdPrimaryButton(
-                    onClick = {
-                        if (isConsentPhase) onAcceptConsent() else onAcceptDisclaimer()
-                    },
-                    label = {
-                        Text(if (isConsentPhase) "I Agree & Consent" else "I Understand & Accept", fontWeight = FontWeight.Bold)
-                    },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("accept_disclaimer_button")
-                )
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Privacy & Data Protection Notice",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    MdDivider()
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Your health data stays 100% on this device.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "• All medical records and prescription scans are encrypted on-device using AES-256-GCM.\n" +
+                                "• No telemetry, health metrics, or medications are shared or sold to third parties.\n" +
+                                "• You can back up your data locally or erase all records at any time in Settings.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MdPrimaryButton(
+                        onClick = onAcceptConsent,
+                        label = { Text("I Agree & Continue", fontWeight = FontWeight.Bold) },
+                        fullWidth = true
+                    )
+                }
+            }
+        }
+    } else if (showDisclaimer) {
+        Dialog(
+            onDismissRequest = { /* mandatory on first launch */ },
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "Medical Advice Disclaimer",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    MdDivider()
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "DawaDiary is a medication tracking and organization tool. It is NOT a substitute for professional medical diagnosis, advice, or treatment.\n\n" +
+                                "Always consult your physician, pharmacist, or qualified healthcare provider regarding your medications, dosages, side effects, or any medical conditions.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    MdPrimaryButton(
+                        onClick = onAcceptDisclaimer,
+                        label = { Text("I Understand & Accept", fontWeight = FontWeight.Bold) },
+                        fullWidth = true
+                    )
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -175,7 +176,8 @@ fun MedicineRow(
             .clickable(onClick = onEdit)
             .testTag("medicine_row_${med.id}"),
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
         tonalElevation = 0.dp
     ) {
         Column(
@@ -389,10 +391,10 @@ fun AddEditMedicineDialog(
                         name = it
                         if (error != null) error = null
                     },
-                    label = { Text(stringResource(R.string.medicine_name)) },
-                    placeholder = { Text("e.g. Paracetamol, Metformin") },
+                    label = stringResource(R.string.medicine_name),
+                    placeholder = "e.g. Paracetamol, Metformin",
                     isError = error != null,
-                    supportingText = error?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
+                    errorMessage = error,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -400,15 +402,15 @@ fun AddEditMedicineDialog(
                     MdTextField(
                         value = strength,
                         onValueChange = { strength = it },
-                        label = { Text(stringResource(R.string.medicine_strength)) },
-                        placeholder = { Text("500 mg") },
+                        label = stringResource(R.string.medicine_strength),
+                        placeholder = "500 mg",
                         modifier = Modifier.weight(1f)
                     )
                     MdTextField(
                         value = doseDescription,
                         onValueChange = { doseDescription = it },
-                        label = { Text("Dosage") },
-                        placeholder = { Text("1 tablet") },
+                        label = "Dosage",
+                        placeholder = "1 tablet",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -471,8 +473,8 @@ fun AddEditMedicineDialog(
                 MdTextField(
                     value = timesOfDay,
                     onValueChange = { timesOfDay = it },
-                    label = { Text("Reminder Times (24h, comma separated)") },
-                    placeholder = { Text("08:00, 14:00, 20:00") },
+                    label = "Reminder Times (24h, comma separated)",
+                    placeholder = "08:00, 14:00, 20:00",
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -488,8 +490,8 @@ fun AddEditMedicineDialog(
                 MdTextField(
                     value = doctor,
                     onValueChange = { doctor = it },
-                    label = { Text(stringResource(R.string.prescribing_doctor)) },
-                    placeholder = { Text("e.g. Dr. Sharma") },
+                    label = stringResource(R.string.prescribing_doctor),
+                    placeholder = "e.g. Dr. Sharma",
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -497,14 +499,14 @@ fun AddEditMedicineDialog(
                     MdTextField(
                         value = stockCountStr,
                         onValueChange = { stockCountStr = it.filter { char -> char.isDigit() } },
-                        label = { Text(stringResource(R.string.stock_count)) },
+                        label = stringResource(R.string.stock_count),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )
                     MdTextField(
                         value = thresholdStr,
                         onValueChange = { thresholdStr = it.filter { char -> char.isDigit() } },
-                        label = { Text(stringResource(R.string.low_stock_threshold)) },
+                        label = stringResource(R.string.low_stock_threshold),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f)
                     )

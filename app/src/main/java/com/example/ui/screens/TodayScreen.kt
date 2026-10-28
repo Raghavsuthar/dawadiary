@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -303,10 +304,10 @@ fun DoseCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* card itself is not an action; buttons handle input */ }
             .testTag("dose_card_${dose.id}"),
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
         tonalElevation = 0.dp
     ) {
         Column(

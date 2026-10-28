@@ -1,20 +1,12 @@
 package com.example.ui.theme
 
 import android.os.Build
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-// ┌────────────────────────────────────────────────────────────────────┐
-// │  DawaDiary Minimalist Theme                                        │
-// │  Light mode only (health apps read best in light). High contrast   │
-// │  and dynamic color are optional accessibility layers.              │
-// └────────────────────────────────────────────────────────────────────┘
-
-// Authoritative light color scheme (minimalist)
-val LightColorScheme = lightColorScheme(
+private val LightColorScheme = lightColorScheme(
     primary = MdPrimary,
     onPrimary = MdOnPrimary,
     primaryContainer = MdPrimaryContainer,
@@ -34,27 +26,21 @@ val LightColorScheme = lightColorScheme(
     surfaceVariant = MdSurfaceVariant,
     onSurfaceVariant = MdOnSurfaceVariant,
     outline = MdOutline,
-    outlineVariant = MdOutline,
     error = MdError,
     onError = MdOnError,
-    errorContainer = MdErrorContainer,
-    onErrorContainer = MdOnPrimaryContainer,
-    inverseSurface = MdOnSurface,
-    inverseOnSurface = MdSurface,
-    inversePrimary = MdPrimaryContainer
+    errorContainer = MdErrorContainer
 )
 
-// High-contrast light scheme for enhanced legibility
-val HighContrastLightColorScheme = lightColorScheme(
+private val HighContrastColorScheme = lightColorScheme(
     primary = HighContrastPrimary,
     onPrimary = MdOnPrimary,
     primaryContainer = MdPrimaryContainer,
     onPrimaryContainer = HighContrastText,
-    secondary = MdPrimary,
+    secondary = HighContrastPrimary,
     onSecondary = MdOnPrimary,
     secondaryContainer = MdPrimaryContainer,
     onSecondaryContainer = HighContrastText,
-    tertiary = MdPrimary,
+    tertiary = HighContrastPrimary,
     onTertiary = MdOnPrimary,
     tertiaryContainer = MdPrimaryContainer,
     onTertiaryContainer = HighContrastText,
@@ -65,28 +51,23 @@ val HighContrastLightColorScheme = lightColorScheme(
     surfaceVariant = MdSurfaceVariant,
     onSurfaceVariant = HighContrastSecondaryText,
     outline = HighContrastOutline,
-    outlineVariant = HighContrastOutline,
     error = MdError,
     onError = MdOnError,
-    errorContainer = MdErrorContainer,
-    onErrorContainer = MdOnPrimaryContainer,
-    inverseSurface = HighContrastText,
-    inverseOnSurface = MdSurface,
-    inversePrimary = MdPrimaryContainer
+    errorContainer = MdErrorContainer
 )
 
 @Composable
 fun DawaDiaryTheme(
-    darkTheme: Boolean = false,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     highContrast: Boolean = false,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        highContrast -> HighContrastLightColorScheme
+        highContrast -> HighContrastColorScheme
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         else -> LightColorScheme
     }

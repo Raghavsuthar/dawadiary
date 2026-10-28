@@ -41,7 +41,6 @@ class DawaDiaryApp : Application() {
                 securityPreferences.setActiveProfileId(existingProfiles.first().id)
             }
 
-            // Sync today's dose alarms
             ReminderManager.syncAndScheduleAlarms(this@DawaDiaryApp)
         }
     }

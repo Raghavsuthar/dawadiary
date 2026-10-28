@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "DawaDiary",
+  "description": "Secure, family-centric medication tracker, reminder, and health records vault.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

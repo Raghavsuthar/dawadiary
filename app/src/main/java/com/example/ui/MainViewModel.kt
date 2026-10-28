@@ -11,7 +11,6 @@ import com.example.data.dao.MedicineWithSchedule
 import com.example.data.dao.RecordWithFiles
 import com.example.data.entity.*
 import com.example.reminder.ReminderManager
-import com.example.util.BackupManager
 import com.example.util.FileManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -88,7 +87,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshDoses() {
-        ReminderManager.syncAndScheduleAlarms(getApplication())
+        viewModelScope.launch(Dispatchers.IO) {
+            ReminderManager.syncAndScheduleAlarms(getApplication())
+        }
     }
 
     fun switchProfile(id: Long) {
