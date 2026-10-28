@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 object ReminderManager {
 
@@ -40,8 +41,6 @@ object ReminderManager {
         withContext(Dispatchers.IO) {
             val db = AppDatabase.getInstance(context)
             val today = LocalDate.now()
-            val startOfDay = today.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            val endOfDay = today.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
             val activeMeds = db.medicineDao().getAllActiveMedicinesWithScheduleList()
             val existingProfiles = db.profileDao().getAllProfiles()
@@ -49,9 +48,61 @@ object ReminderManager {
 
             for (medWithSched in activeMeds) {
                 val med = medWithSched.medicine
+                if (!med.isActive) continue
+
+                // Check start and end date validity
+                val startDate = try {
+                    if (med.startDate.isNotBlank()) LocalDate.parse(med.startDate) else today
+                } catch (e: Exception) {
+                    today
+                }
+
+                if (today.isBefore(startDate)) continue
+
+                if (!med.endDate.isNullOrBlank()) {
+                    try {
+                        val endDate = LocalDate.parse(med.endDate)
+                        if (today.isAfter(endDate)) continue
+                    } catch (e: Exception) {
+                        // ignore malformed date
+                    }
+                }
+
                 val profile = profileMap[med.profileId] ?: continue
 
                 for (sched in medWithSched.schedules) {
+                    if (!sched.isActive) continue
+
+                    // Check schedule type applicability for today
+                    if (sched.scheduleType == "AS_NEEDED") {
+                        // PRN medicines are taken as needed, no preset daily alarms
+                        continue
+                    }
+
+                    if (sched.scheduleType == "SPECIFIC_DAYS") {
+                        // Day of week: 1=Monday .. 7=Sunday
+                        val dayVal = today.dayOfWeek.value
+                        val maskBit = 1 shl (dayVal - 1)
+                        if ((sched.daysOfWeekMask and maskBit) == 0) {
+                            continue
+                        }
+                    } else if (sched.scheduleType == "INTERVAL") {
+                        val interval = if (sched.intervalDays > 0) sched.intervalDays else 1
+                        val daysBetween = ChronoUnit.DAYS.between(startDate, today)
+                        if (daysBetween < 0 || (daysBetween % interval) != 0L) {
+                            continue
+                        }
+                    }
+
+                    if (!sched.taperingEndDate.isNullOrBlank()) {
+                        try {
+                            val taperingEnd = LocalDate.parse(sched.taperingEndDate)
+                            if (today.isAfter(taperingEnd)) continue
+                        } catch (e: Exception) {
+                            // ignore malformed tapering date
+                        }
+                    }
+
                     val times = sched.timesOfDay.split(",").map { it.trim() }
                     for (timeStr in times) {
                         try {
@@ -89,6 +140,15 @@ object ReminderManager {
         }
     }
 
+    fun canScheduleExactAlarms(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+    }
+
     fun scheduleExactAlarm(
         context: Context,
         doseId: Long,
@@ -116,13 +176,50 @@ object ReminderManager {
         )
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, scheduledTime, pendingIntent)
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, scheduledTime, pendingIntent)
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, scheduledTime, pendingIntent)
             } else {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, scheduledTime, pendingIntent)
             }
         } catch (e: Exception) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, scheduledTime, pendingIntent)
+            try {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, scheduledTime, pendingIntent)
+            } catch (ignored: Exception) {}
+        }
+    }
+
+    fun cancelAlarmForDose(context: Context, doseId: Long) {
+        try {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, AlarmReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                doseId.toInt(),
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent)
+                pendingIntent.cancel()
+            }
+        } catch (ignored: Exception) {}
+    }
+
+    suspend fun cancelAlarmsForMedicine(context: Context, medicineId: Long) {
+        withContext(Dispatchers.IO) {
+            val db = AppDatabase.getInstance(context)
+            val doses = db.doseLogDao().getDosesForMedicine(medicineId)
+            for (d in doses) {
+                if (d.status == "PENDING") {
+                    cancelAlarmForDose(context, d.id)
+                }
+            }
         }
     }
 

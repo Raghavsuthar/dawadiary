@@ -1,28 +1,171 @@
 <resources>
     <string name="app_name">DawaDiary</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_medicines">Medicines</string>
+    <string name="nav_records">Records</string>
+    <string name="nav_family">Family</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Profiles -->
+    <string name="profiles_title">Family Profiles</string>
+    <string name="add_profile">Add Member</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="switch_profile">Switch Profile</string>
     <string name="all_profiles">All Family Profiles</string>
-    <string name="emergency_card">Emergency Medical Card</string>
-    <string name="today_schedule">Today\'s Schedule</string>
-    <string name="adherence_rate">Today\'s Adherence</string>
-    <string name="all_done_celebration">Great job staying on track with your health today!</string>
-    <string name="empty_today">No medicine doses scheduled for this profile today.</string>
+    <string name="profile_self">Self</string>
+    <string name="field_name">Full Name</string>
+    <string name="field_relationship">Relationship</string>
+    <string name="field_dob">Date of Birth</string>
+    <string name="field_gender">Gender</string>
+    <string name="field_blood_group">Blood Group</string>
+    <string name="field_allergies">Allergies (e.g. Penicillin)</string>
+    <string name="field_chronic_conditions">Chronic Conditions (e.g. Hypertension)</string>
+    <string name="field_emergency_contact">Emergency Contact Phone</string>
+    <string name="delete_profile_confirm">Are you sure you want to remove this profile? All associated medicines and records will be permanently deleted.</string>
+
+    <!-- Medicines -->
+    <string name="medicines_title">Medicines &amp; Regimens</string>
     <string name="add_medicine">Add Medicine</string>
-    <string name="action_take">Take</string>
-    <string name="action_skip">Skip</string>
+    <string name="edit_medicine">Edit Medicine</string>
+    <string name="medicine_name">Medicine Name *</string>
+    <string name="medicine_strength">Strength (e.g. 500 mg, 10 ml)</string>
+    <string name="medicine_form">Form</string>
+    <string name="form_tablet">Tablet</string>
+    <string name="form_capsule">Capsule</string>
+    <string name="form_syrup">Syrup</string>
+    <string name="form_injection">Injection</string>
+    <string name="form_drops">Drops</string>
+    <string name="form_inhaler">Inhaler</string>
+    <string name="form_ointment">Ointment / Cream</string>
+    <string name="dose_quantity">Dose (e.g. 1 tablet, 5 ml)</string>
+    <string name="food_instruction">Food Instruction</string>
     <string name="food_before">Take Before Food</string>
     <string name="food_after">Take After Food</string>
     <string name="food_with">Take With Food</string>
     <string name="food_any">Anytime</string>
-    <string name="add_profile">Add Member</string>
-    <string name="save">Save</string>
-    <string name="cancel">Cancel</string>
-    <string name="medicines_title">Medicines &amp; Regimens</string>
-    <string name="empty_medicines">No active medications found. Tap below to add a new medicine to your schedule.</string>
-    <string name="edit_medicine">Edit Medicine</string>
-    <string name="medicine_name">Medicine Name *</string>
-    <string name="medicine_strength">Strength (e.g. 500 mg)</string>
-    <string name="food_instruction">Food Instruction</string>
     <string name="prescribing_doctor">Prescribing Doctor</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
     <string name="stock_count">Current Stock</string>
     <string name="low_stock_threshold">Low Stock Alert At</string>
+    <string name="low_stock_warning">Low stock warning: only %1$d doses remaining. Please refill soon.</string>
+
+    <!-- Schedules -->
+    <string name="schedule_type">Schedule Pattern</string>
+    <string name="schedule_daily">Daily (Fixed Times)</string>
+    <string name="schedule_weekdays">Specific Days of Week</string>
+    <string name="schedule_interval">Every N Days</string>
+    <string name="schedule_as_needed">As Needed (PRN)</string>
+    <string name="schedule_tapering">Tapering / Limited Period</string>
+    <string name="reminder_times">Reminder Times</string>
+    <string name="add_time">Add Time</string>
+    <string name="interval_days_label">Interval in Days</string>
+
+    <!-- Dose Actions & Status -->
+    <string name="action_take">Take</string>
+    <string name="action_snooze">Snooze 10m</string>
+    <string name="action_skip">Skip</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_taken">Taken</string>
+    <string name="status_snoozed">Snoozed</string>
+    <string name="status_skipped">Skipped</string>
+    <string name="status_missed">Missed</string>
+    <string name="next_dose">Next Dose</string>
+    <string name="today_schedule">Today\'s Schedule</string>
+    <string name="adherence_rate">Today\'s Adherence</string>
+    <string name="weekly_adherence">7-Day Adherence</string>
+    <string name="monthly_adherence">30-Day Adherence</string>
+
+    <!-- Health Records Vault -->
+    <string name="records_title">Health Records Vault</string>
+    <string name="add_record">Add Record</string>
+    <string name="record_title">Title / Diagnosis</string>
+    <string name="record_date">Record Date</string>
+    <string name="doctor_hospital">Doctor / Hospital Name</string>
+    <string name="record_type">Document Category</string>
+    <string name="type_prescription">Prescription</string>
+    <string name="type_lab_report">Lab / Blood Report</string>
+    <string name="type_imaging">X-Ray / Scan / MRI</string>
+    <string name="type_discharge_summary">Discharge Summary</string>
+    <string name="type_vaccination">Vaccination</string>
+    <string name="type_bill_insurance">Bill / Insurance</string>
+    <string name="type_doctor_note">Doctor\'s Note</string>
+    <string name="type_other">Other</string>
+    <string name="tags_label">Tags</string>
+    <string name="notes_label">Clinical Notes</string>
+    <string name="attachments_label">Encrypted Files</string>
+    <string name="attach_camera">Scan with Camera</string>
+    <string name="attach_gallery">Choose from Photos</string>
+    <string name="attach_file">Attach Document</string>
+    <string name="search_records">Search records, doctors, or tags...</string>
+
+    <!-- Vitals Tracker -->
+    <string name="vitals_title">Vitals Tracker</string>
+    <string name="log_vital">Log Vital</string>
+    <string name="vital_bp">Blood Pressure</string>
+    <string name="vital_sugar">Blood Sugar</string>
+    <string name="vital_weight">Weight</string>
+    <string name="vital_spo2">Oxygen SpO2 (%)</string>
+    <string name="vital_temp">Temperature (°F)</string>
+    <string name="systolic">Systolic</string>
+    <string name="diastolic">Diastolic</string>
+
+    <!-- Appointments -->
+    <string name="appointments_title">Doctor Appointments</string>
+    <string name="add_appointment">Schedule Appointment</string>
+    <string name="doctor_name">Doctor Name</string>
+    <string name="clinic_location">Clinic / Hospital Location</string>
+    <string name="appointment_datetime">Date and Time</string>
+    <string name="upcoming_appointments">Upcoming Appointments</string>
+
+    <!-- Emergency Card -->
+    <string name="emergency_card">Emergency Medical Card</string>
+    <string name="emergency_card_subtitle">Immediate access to critical health info</string>
+    <string name="call_emergency_contact">Call Emergency Contact</string>
+    <string name="enable_lockscreen_emergency">Enable Quick Emergency Card</string>
+
+    <!-- Security & Privacy (DPDP Act) -->
+    <string name="app_lock">App Security &amp; Lock</string>
+    <string name="pin_lock">4-Digit Security PIN</string>
+    <string name="biometric_lock">Biometric / Fingerprint Lock</string>
+    <string name="flag_secure_label">Prevent Screen Capture (FLAG_SECURE)</string>
+    <string name="enter_pin_title">Enter Security PIN</string>
+    <string name="set_pin_title">Create 4-Digit PIN</string>
+    <string name="confirm_pin_title">Confirm PIN</string>
+    <string name="pin_mismatch">PINs do not match. Please try again.</string>
+    <string name="pin_incorrect">Incorrect PIN. Please try again.</string>
+    <string name="pin_set_success">Security PIN set successfully!</string>
+    <string name="dpdp_compliance_title">Your Privacy &amp; Data Rights</string>
+    <string name="dpdp_consent_notice">DawaDiary functions offline. All your medications, medical records, and family data remain encrypted on this device. No health data is uploaded to remote servers.</string>
+    <string name="medical_disclaimer_title">Important Medical Disclaimer</string>
+    <string name="medical_disclaimer_notice">DawaDiary is a personal health logging and reminder tool. It does not provide medical diagnoses or replace doctor advice. Always consult your healthcare provider before changing doses.</string>
+    <string name="disclaimer_agree">I Understand &amp; Agree</string>
+    <string name="backup_export">Export Encrypted Backup</string>
+    <string name="backup_restore">Restore from Backup File</string>
+    <string name="delete_all_data">Erase All Data Permanently</string>
+    <string name="delete_all_warning">This will permanently delete all family members, medications, logs, and medical records from this device.</string>
+
+    <!-- Battery Optimization & Reminders -->
+    <string name="battery_optimization_title">Timely Medication Reminders</string>
+    <string name="battery_optimization_desc">System battery savers may delay notifications when the screen is off. Adjust settings to ensure exact reminder timing.</string>
+    <string name="disable_battery_optimization">Check Reminder Permissions</string>
+
+    <!-- Accessibility & Display -->
+    <string name="font_size_scale">Font Size</string>
+    <string name="high_contrast">High Contrast Mode</string>
+    <string name="language_selection">Language / भाषा / ભાષા</string>
+
+    <!-- Common Actions -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+    <string name="close">Close</string>
+    <string name="share">Share</string>
+    <string name="empty_today">No medicine doses scheduled for this profile today.</string>
+    <string name="empty_records">No health records found.</string>
+    <string name="empty_medicines">No active medications found. Tap below to add a new medicine to your schedule.</string>
+    <string name="all_done_celebration">Great job staying on track with your health today!</string>
 </resources>

@@ -16,14 +16,29 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.security.PinVerifyResult
+import kotlinx.coroutines.delay
 
 @Composable
 fun LockScreen(
-    onUnlockWithPin: (String) -> Boolean,
+    onUnlockWithPin: (String) -> PinVerifyResult,
     onBiometricRequest: () -> Unit
 ) {
     var enteredPin by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var lockoutSeconds by remember { mutableStateOf(0L) }
+
+    LaunchedEffect(lockoutSeconds) {
+        if (lockoutSeconds > 0) {
+            delay(1000)
+            lockoutSeconds -= 1
+            if (lockoutSeconds == 0L) {
+                errorMessage = null
+            } else {
+                errorMessage = "Too many failed attempts. Locked for ${lockoutSeconds}s"
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier
@@ -121,12 +136,13 @@ fun LockScreen(
                                 "BIO" -> {
                                     IconButton(
                                         onClick = onBiometricRequest,
-                                        modifier = Modifier.size(64.dp)
+                                        modifier = Modifier.size(64.dp),
+                                        enabled = lockoutSeconds == 0L
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Fingerprint,
                                             contentDescription = "Biometric Login",
-                                            tint = MaterialTheme.colorScheme.primary,
+                                            tint = if (lockoutSeconds == 0L) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                                             modifier = Modifier.size(32.dp)
                                         )
                                     }
@@ -134,12 +150,13 @@ fun LockScreen(
                                 "DEL" -> {
                                     TextButton(
                                         onClick = {
-                                            if (enteredPin.isNotEmpty()) {
+                                            if (enteredPin.isNotEmpty() && lockoutSeconds == 0L) {
                                                 enteredPin = enteredPin.dropLast(1)
                                                 errorMessage = null
                                             }
                                         },
-                                        modifier = Modifier.size(64.dp)
+                                        modifier = Modifier.size(64.dp),
+                                        enabled = lockoutSeconds == 0L
                                     ) {
                                         Text(
                                             text = "⌫",
@@ -152,20 +169,31 @@ fun LockScreen(
                                 else -> {
                                     FilledTonalButton(
                                         onClick = {
+                                            if (lockoutSeconds > 0L) return@FilledTonalButton
                                             if (enteredPin.length < 4) {
                                                 enteredPin += key
                                                 errorMessage = null
                                                 if (enteredPin.length == 4) {
-                                                    val success = onUnlockWithPin(enteredPin)
-                                                    if (!success) {
-                                                        errorMessage = "Incorrect PIN"
-                                                        enteredPin = ""
+                                                    when (val res = onUnlockWithPin(enteredPin)) {
+                                                        is PinVerifyResult.Success -> {
+                                                            errorMessage = null
+                                                        }
+                                                        is PinVerifyResult.Incorrect -> {
+                                                            errorMessage = "Incorrect PIN (${res.attemptsRemaining} attempts left)"
+                                                            enteredPin = ""
+                                                        }
+                                                        is PinVerifyResult.LockedOut -> {
+                                                            lockoutSeconds = res.secondsRemaining
+                                                            errorMessage = "Too many failed attempts. Locked for ${res.secondsRemaining}s"
+                                                            enteredPin = ""
+                                                        }
                                                     }
                                                 }
                                             }
                                         },
                                         modifier = Modifier.size(64.dp),
                                         shape = CircleShape,
+                                        enabled = lockoutSeconds == 0L,
                                         colors = ButtonDefaults.filledTonalButtonColors(
                                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                             contentColor = MaterialTheme.colorScheme.onSurface

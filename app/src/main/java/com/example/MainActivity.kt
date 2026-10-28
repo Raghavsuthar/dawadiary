@@ -71,9 +71,16 @@ class MainActivity : FragmentActivity() {
             val isConsentAccepted by viewModel.isConsentAccepted.collectAsStateWithLifecycle()
             val isDisclaimerAccepted by viewModel.isDisclaimerAccepted.collectAsStateWithLifecycle()
 
-            // Clear FLAG_SECURE to ensure the streaming Android emulator can render frames properly
-            LaunchedEffect(Unit) {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            // Dynamic FLAG_SECURE handling
+            LaunchedEffect(isFlagSecure) {
+                if (isFlagSecure) {
+                    window.setFlags(
+                        WindowManager.LayoutParams.FLAG_SECURE,
+                        WindowManager.LayoutParams.FLAG_SECURE
+                    )
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                }
             }
 
             val currentDensity = LocalDensity.current
@@ -94,7 +101,7 @@ class MainActivity : FragmentActivity() {
 
                         if (isLocked) {
                             LockScreen(
-                                onUnlockWithPin = { pin -> viewModel.unlockApp(pin) },
+                                onUnlockWithPin = { pin -> viewModel.verifyPin(pin) },
                                 onBiometricRequest = { showBiometricPrompt() }
                             )
                         }
@@ -108,6 +115,13 @@ class MainActivity : FragmentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!isChangingConfigurations) {
+            viewModel.onAppBackgrounded()
         }
     }
 
@@ -153,6 +167,7 @@ fun DawaDiaryAppContent(
     val isFlagSecure by viewModel.isFlagSecureEnabled.collectAsStateWithLifecycle()
     val fontScale by viewModel.fontScale.collectAsStateWithLifecycle()
     val isHighContrast by viewModel.isHighContrast.collectAsStateWithLifecycle()
+    val isPrivateNotifications by viewModel.isPrivateNotificationsEnabled.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize()) {
         MdTopStrip(
@@ -209,13 +224,17 @@ fun DawaDiaryAppContent(
                     isFlagSecure = isFlagSecure,
                     fontScale = fontScale,
                     isHighContrast = isHighContrast,
+                    isPrivateNotifications = isPrivateNotifications,
                     currentLanguage = viewModel.getLanguage(),
                     onToggleFlagSecure = { enabled -> viewModel.toggleFlagSecure(enabled) },
                     onSetFontScale = { scale -> viewModel.setFontScale(scale) },
                     onToggleHighContrast = { enabled -> viewModel.toggleHighContrast(enabled) },
+                    onTogglePrivateNotifications = { enabled -> viewModel.togglePrivateNotifications(enabled) },
                     onSetLanguage = { lang -> viewModel.setLanguage(lang) },
                     onSetPin = { pin -> viewModel.setPin(pin) },
                     onClearPin = { viewModel.clearPin() },
+                    onExportBackup = { password, uri -> viewModel.createEncryptedBackup(password, uri) },
+                    onRestoreBackup = { password, uri -> viewModel.restoreEncryptedBackup(password, uri) },
                     onEraseAllData = {
                         viewModel.eraseAllData {
                             currentTab = "today"

@@ -30,7 +30,13 @@ import com.example.data.entity.ProfileEntity
 import com.example.data.entity.VitalEntity
 import com.example.ui.components.EmergencyCardDialog
 import com.example.ui.theme.*
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import androidx.compose.ui.platform.LocalContext
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -541,10 +547,41 @@ fun AddAppointmentDialog(
     onDismiss: () -> Unit,
     onSave: (AppointmentEntity) -> Unit
 ) {
+    val context = LocalContext.current
     var doctor by remember { mutableStateOf("") }
     var specialty by remember { mutableStateOf("") }
     var hospital by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+
+    var selectedDate by remember { mutableStateOf(LocalDate.now().plusDays(1)) }
+    var selectedTime by remember { mutableStateOf(LocalTime.of(10, 0)) }
+
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d, yyyy") }
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("hh:mm a") }
+
+    val datePickerDialog = remember(context, selectedDate) {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+            },
+            selectedDate.year,
+            selectedDate.monthValue - 1,
+            selectedDate.dayOfMonth
+        )
+    }
+
+    val timePickerDialog = remember(context, selectedTime) {
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                selectedTime = LocalTime.of(hourOfDay, minute)
+            },
+            selectedTime.hour,
+            selectedTime.minute,
+            false
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -559,6 +596,30 @@ fun AddAppointmentDialog(
                 MdTextField(value = doctor, onValueChange = { doctor = it }, label = "Doctor Name *")
                 MdTextField(value = specialty, onValueChange = { specialty = it }, label = "Specialty (e.g. Cardiologist)")
                 MdTextField(value = hospital, onValueChange = { hospital = it }, label = "Clinic / Hospital")
+
+                Text("Appointment Date & Time:", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { datePickerDialog.show() },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(selectedDate.format(dateFormatter), style = MaterialTheme.typography.bodySmall)
+                    }
+                    OutlinedButton(
+                        onClick = { timePickerDialog.show() },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(selectedTime.format(timeFormatter), style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+
                 MdTextField(value = notes, onValueChange = { notes = it }, label = "Notes / Reason for visit")
             }
         },
@@ -566,13 +627,17 @@ fun AddAppointmentDialog(
             MdPrimaryButton(
                 onClick = {
                     if (doctor.isBlank()) return@MdPrimaryButton
+                    val appointmentEpoch = LocalDateTime.of(selectedDate, selectedTime)
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
                     onSave(
                         AppointmentEntity(
                             profileId = profileId,
                             doctorName = doctor.trim(),
                             specialty = specialty.trim(),
                             clinicHospital = hospital.trim(),
-                            appointmentDateTime = System.currentTimeMillis() + 86400000 * 3, // in 3 days demo
+                            appointmentDateTime = appointmentEpoch,
                             notes = notes.trim()
                         )
                     )
@@ -585,3 +650,4 @@ fun AddAppointmentDialog(
         }
     )
 }
+

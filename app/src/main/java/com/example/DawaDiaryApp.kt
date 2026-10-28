@@ -21,26 +21,6 @@ class DawaDiaryApp : Application() {
         ReminderManager.initNotificationChannels(this)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val db = AppDatabase.getInstance(this@DawaDiaryApp)
-            val existingProfiles = db.profileDao().getAllProfiles()
-            if (existingProfiles.isEmpty()) {
-                val selfId = db.profileDao().insertProfile(
-                    ProfileEntity(
-                        name = "My Self",
-                        relationship = "Self",
-                        dob = "1990-01-01",
-                        gender = "Male",
-                        bloodGroup = "O+",
-                        isSelf = true
-                    )
-                )
-                if (securityPreferences.getActiveProfileId() == -1L) {
-                    securityPreferences.setActiveProfileId(selfId)
-                }
-            } else if (securityPreferences.getActiveProfileId() == -1L) {
-                securityPreferences.setActiveProfileId(existingProfiles.first().id)
-            }
-
             ReminderManager.syncAndScheduleAlarms(this@DawaDiaryApp)
         }
     }

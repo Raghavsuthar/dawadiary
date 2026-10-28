@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.example.DawaDiaryApp
 import com.example.data.AppDatabase
 import com.example.data.dao.DoseWithMedicine
@@ -11,6 +12,9 @@ import com.example.data.dao.MedicineWithSchedule
 import com.example.data.dao.RecordWithFiles
 import com.example.data.entity.*
 import com.example.reminder.ReminderManager
+import com.example.security.PinVerifyResult
+import com.example.util.BackupManager
+import com.example.util.BackupResult
 import com.example.util.FileManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -29,6 +33,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val fontScale = securityPrefs.fontScaleFlow
     val isHighContrast = securityPrefs.highContrastFlow
     val activeProfileId = securityPrefs.activeProfileIdFlow
+    val isPrivateNotificationsEnabled = securityPrefs.privateNotificationsFlow
 
     private val _isConsentAccepted = MutableStateFlow(securityPrefs.isConsentAccepted())
     val isConsentAccepted = _isConsentAccepted.asStateFlow()
@@ -98,8 +103,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markDoseTaken(doseId: Long, medicineId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.doseLogDao().updateDoseStatus(doseId, "TAKEN", System.currentTimeMillis())
-            db.medicineDao().decrementStock(medicineId, 1)
+            db.withTransaction {
+                val affected = db.doseLogDao().updateDoseStatusConditional(
+                    id = doseId,
+                    expectedStatus = "PENDING",
+                    newStatus = "TAKEN",
+                    actionTime = System.currentTimeMillis()
+                )
+                if (affected > 0) {
+                    db.medicineDao().decrementStock(medicineId, 1)
+                }
+            }
             refreshDoses()
         }
     }
@@ -125,7 +139,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markDoseSkipped(doseId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.doseLogDao().updateDoseStatus(doseId, "SKIPPED", System.currentTimeMillis(), "Skipped by patient")
+            db.doseLogDao().updateDoseStatusConditional(
+                id = doseId,
+                expectedStatus = "PENDING",
+                newStatus = "SKIPPED",
+                actionTime = System.currentTimeMillis(),
+                notes = "Skipped by patient"
+            )
             refreshDoses()
         }
     }
@@ -160,16 +180,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun saveMedicine(medicine: MedicineEntity, schedule: ScheduleEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            val medId = db.medicineDao().insertMedicine(medicine)
-            db.scheduleDao().deleteSchedulesForMedicine(medId)
-            db.scheduleDao().insertSchedule(schedule.copy(medicineId = medId))
+            db.withTransaction {
+                val medId = if (medicine.id == 0L) {
+                    val newId = db.medicineDao().insertMedicine(medicine)
+                    db.scheduleDao().insertSchedule(schedule.copy(medicineId = newId))
+                    newId
+                } else {
+                    db.medicineDao().updateMedicine(medicine)
+                    val existing = db.scheduleDao().getAllSchedulesForMedicine(medicine.id)
+                    if (existing.isNotEmpty()) {
+                        db.scheduleDao().updateSchedule(
+                            schedule.copy(id = existing.first().id, medicineId = medicine.id)
+                        )
+                    } else {
+                        db.scheduleDao().insertSchedule(schedule.copy(medicineId = medicine.id))
+                    }
+                    medicine.id
+                }
+            }
             refreshDoses()
         }
     }
 
     fun deleteMedicine(medicine: MedicineEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.medicineDao().deleteMedicine(medicine)
+            db.withTransaction {
+                db.medicineDao().archiveMedicine(medicine.id)
+                db.doseLogDao().cancelPendingDosesForMedicine(medicine.id)
+            }
+            ReminderManager.cancelAlarmsForMedicine(getApplication(), medicine.id)
             refreshDoses()
         }
     }
@@ -237,12 +276,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _isDisclaimerAccepted.value = true
     }
 
-    fun unlockApp(pin: String): Boolean {
+    fun verifyPin(pin: String): PinVerifyResult {
         return securityPrefs.verifyPin(pin)
+    }
+
+    fun unlockApp(pin: String): Boolean {
+        return securityPrefs.verifyPin(pin) is PinVerifyResult.Success
     }
 
     fun unlockWithBiometric() {
         securityPrefs.unlock()
+    }
+
+    fun onAppBackgrounded() {
+        securityPrefs.lock()
     }
 
     fun setPin(pin: String) {
@@ -255,6 +302,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleFlagSecure(enabled: Boolean) {
         securityPrefs.setFlagSecureEnabled(enabled)
+    }
+
+    fun togglePrivateNotifications(enabled: Boolean) {
+        securityPrefs.setPrivateNotifications(enabled)
     }
 
     fun setFontScale(scale: Float) {
@@ -270,6 +321,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getLanguage(): String = securityPrefs.getLanguage()
+
+    suspend fun createEncryptedBackup(password: String, destinationUri: Uri): BackupResult {
+        return BackupManager.createEncryptedBackup(getApplication(), password, destinationUri)
+    }
+
+    suspend fun restoreEncryptedBackup(password: String, sourceUri: Uri): BackupResult {
+        val result = BackupManager.restoreEncryptedBackup(getApplication(), password, sourceUri)
+        if (result is BackupResult.Success) {
+            refreshDoses()
+            val profiles = db.profileDao().getAllProfiles()
+            if (profiles.isNotEmpty()) {
+                securityPrefs.setActiveProfileId(profiles.first().id)
+            }
+        }
+        return result
+    }
 
     fun eraseAllData(onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {

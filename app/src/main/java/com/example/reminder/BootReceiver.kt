@@ -11,8 +11,13 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == "android.intent.action.QUICKBOOT_POWERON") {
             ReminderManager.initNotificationChannels(context)
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
-                ReminderManager.syncAndScheduleAlarms(context)
+                try {
+                    ReminderManager.syncAndScheduleAlarms(context)
+                } finally {
+                    pendingResult.finish()
+                }
             }
         }
     }
