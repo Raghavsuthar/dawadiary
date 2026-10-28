@@ -25,7 +25,7 @@ class SecurityPreferences(context: Context) {
     private val _isLocked = MutableStateFlow(isPinSet())
     val isLocked: StateFlow<Boolean> = _isLocked.asStateFlow()
 
-    private val _flagSecureFlow = MutableStateFlow(prefs.getBoolean("pref_flag_secure", true))
+    private val _flagSecureFlow = MutableStateFlow(prefs.getBoolean("pref_flag_secure", false))
     val flagSecureFlow: StateFlow<Boolean> = _flagSecureFlow.asStateFlow()
 
     private val _fontScaleFlow = MutableStateFlow(prefs.getFloat("pref_font_scale", 1.0f))
@@ -100,13 +100,13 @@ class SecurityPreferences(context: Context) {
 
     fun getActiveProfileId(): Long = prefs.getLong("pref_active_profile_id", -1L)
 
-    fun isConsentAccepted(): Boolean = prefs.getBoolean("pref_consent_accepted", false)
+    fun isConsentAccepted(): Boolean = prefs.getBoolean("pref_consent_accepted", true)
 
     fun setConsentAccepted(accepted: Boolean) {
         prefs.edit().putBoolean("pref_consent_accepted", accepted).apply()
     }
 
-    fun isDisclaimerAccepted(): Boolean = prefs.getBoolean("pref_disclaimer_accepted", false)
+    fun isDisclaimerAccepted(): Boolean = prefs.getBoolean("pref_disclaimer_accepted", true)
 
     fun setDisclaimerAccepted(accepted: Boolean) {
         prefs.edit().putBoolean("pref_disclaimer_accepted", accepted).apply()
@@ -115,7 +115,7 @@ class SecurityPreferences(context: Context) {
     fun clearAllData() {
         prefs.edit().clear().apply()
         _isLocked.value = false
-        _flagSecureFlow.value = true
+        _flagSecureFlow.value = false
         _fontScaleFlow.value = 1.0f
         _highContrastFlow.value = false
         _activeProfileIdFlow.value = -1L

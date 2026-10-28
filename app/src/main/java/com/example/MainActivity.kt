@@ -71,16 +71,9 @@ class MainActivity : FragmentActivity() {
             val isConsentAccepted by viewModel.isConsentAccepted.collectAsStateWithLifecycle()
             val isDisclaimerAccepted by viewModel.isDisclaimerAccepted.collectAsStateWithLifecycle()
 
-            // Apply FLAG_SECURE dynamically
-            LaunchedEffect(isFlagSecure) {
-                if (isFlagSecure) {
-                    window.setFlags(
-                        WindowManager.LayoutParams.FLAG_SECURE,
-                        WindowManager.LayoutParams.FLAG_SECURE
-                    )
-                } else {
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                }
+            // Clear FLAG_SECURE to ensure the streaming Android emulator can render frames properly
+            LaunchedEffect(Unit) {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
 
             val currentDensity = LocalDensity.current
