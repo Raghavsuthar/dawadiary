@@ -115,10 +115,11 @@ fun SettingsScreen(
                     is BackupResult.Success -> {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(22.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -139,10 +140,11 @@ fun SettingsScreen(
                     is BackupResult.Failure -> {
                         Surface(
                             color = MaterialTheme.colorScheme.errorContainer,
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(22.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
                         ) {
                             Row(
                                 modifier = Modifier.padding(14.dp),
@@ -163,12 +165,13 @@ fun SettingsScreen(
         item {
             MdSection(title = { Text("Language / भाषा / ભાષા", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) })
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Select App Interface Language", fontWeight = FontWeight.SemiBold)
@@ -198,12 +201,13 @@ fun SettingsScreen(
         item {
             MdSection(title = { Text("Security & Privacy", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) })
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
             ) {
                 Column {
                     MdListRow(
@@ -248,12 +252,13 @@ fun SettingsScreen(
         item {
             MdSection(title = { Text("Medication Reminder Accuracy", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) })
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
@@ -297,12 +302,13 @@ fun SettingsScreen(
         item {
             MdSection(title = { Text("Accessibility & Display", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) })
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Font Size for Elderly Comfort", fontWeight = FontWeight.SemiBold)
@@ -346,12 +352,13 @@ fun SettingsScreen(
         item {
             MdSection(title = { Text("Local Encrypted Backup", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) })
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.surface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
             ) {
                 Column {
                     MdListRow(
@@ -383,12 +390,13 @@ fun SettingsScreen(
         item {
             MdSection(title = { Text("Data & Privacy (DPDP Compliance)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error) })
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(22.dp),
                 color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.4f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .dawaCardShadow(4.dp, RoundedCornerShape(22.dp))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Erase All Data Permanently", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
