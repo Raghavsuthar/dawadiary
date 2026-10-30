@@ -162,13 +162,16 @@ fun MedicineRow(
     val sched = medWithSched.schedules.firstOrNull()
     val isLowStock = med.stockCount <= med.lowStockThreshold
 
+    val rowShape = RoundedCornerShape(24.dp)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .dawaCardShadow(4.dp, rowShape)
+            .clip(rowShape)
             .clickable(onClick = onEdit)
             .testTag("medicine_row_${med.id}"),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shape = RoundedCornerShape(14.dp),
+        shape = rowShape,
         tonalElevation = 0.dp
     ) {
         Column(
@@ -187,8 +190,8 @@ fun MedicineRow(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(14.dp))
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
@@ -213,7 +216,7 @@ fun MedicineRow(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "${med.doseDescription} ΓÇó ${med.strength} (${med.form})",
+                            text = "${med.doseDescription} • ${med.strength} (${med.form})",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
