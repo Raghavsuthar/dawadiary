@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build debug APK
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out code
         uses: actions/checkout@v5
@@ -19,18 +19,17 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Install Android SDK tools
-        uses: android-actions/setup-android@v3
+      - name: SDK diagnostics
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME" || true
+          ls "$ANDROID_HOME/cmdline-tools" 2>/dev/null || echo "no cmdline-tools"
+          ls "$ANDROID_HOME/cmdline-tools/latest/bin" 2>/dev/null || true
+          chmod +x "$ANDROID_HOME"/cmdline-tools/latest/bin/* 2>/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version || echo "sdkmanager check failed (non-fatal)"
 
       - name: Accept Android SDK licenses
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-
-      - name: Check SDK tool is usable
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la "$ANDROID_HOME" || true
-          chmod +x "$ANDROID_HOME"/cmdline-tools/latest/bin/* 2>/dev/null || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
 
       - name: Create signing key for debug build
         run: |
