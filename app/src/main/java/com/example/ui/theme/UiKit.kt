@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.R
 
-private val CardShape = RoundedCornerShape(22.dp)
-private val ChipShape = RoundedCornerShape(14.dp)
-private val FieldShape = RoundedCornerShape(16.dp)
+private val CardShape = RoundedCornerShape(20.dp)
+private val ChipShape = RoundedCornerShape(9999.dp)
+private val FieldShape = RoundedCornerShape(12.dp)
 private val ButtonShape = RoundedCornerShape(16.dp)
 
 @Composable
@@ -39,9 +39,9 @@ fun MdSurface(
         modifier = modifier
             .fillMaxWidth()
             .padding(padding),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = CardShape,
-        tonalElevation = 2.dp,
+        tonalElevation = 0.dp,
         content = content
     )
 }
@@ -116,11 +116,12 @@ fun MdPrimaryButton(
         onClick = onClick,
         enabled = enabled,
         shape = ButtonShape,
+        contentPadding = PaddingValues(horizontal = 20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        modifier = if (fullWidth) modifier.fillMaxWidth() else modifier
+        modifier = (if (fullWidth) modifier.fillMaxWidth() else modifier).height(52.dp)
     ) {
         label()
     }
@@ -134,15 +135,16 @@ fun MdOutlineButton(
     enabled: Boolean = true,
     fullWidth: Boolean = false
 ) {
-    OutlinedButton(
+    Button(
         onClick = onClick,
         enabled = enabled,
         shape = ButtonShape,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        colors = ButtonDefaults.outlinedButtonColors(
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
-        modifier = if (fullWidth) modifier.fillMaxWidth() else modifier
+        modifier = (if (fullWidth) modifier.fillMaxWidth() else modifier).height(52.dp)
     ) {
         label()
     }
@@ -176,10 +178,10 @@ fun MdStatusChip(
     Surface(
         color = bgColor,
         shape = ChipShape,
-        modifier = modifier
+        modifier = modifier.height(32.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -188,15 +190,15 @@ fun MdStatusChip(
                     imageVector = icon,
                     contentDescription = null,
                     tint = textColor,
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(16.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(5.dp))
             }
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
                 color = textColor,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
         }
     }
@@ -212,15 +214,13 @@ fun MdChip(
     Surface(
         onClick = onClick,
         shape = ChipShape,
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(
-            1.dp,
-            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        ),
+        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
         modifier = modifier
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier
+                .height(48.dp)
+                .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             label()
@@ -245,7 +245,11 @@ fun MdConfirmDialog(
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = confirmColor)
+                shape = ButtonShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = confirmColor,
+                    contentColor = Color.White
+                )
             ) {
                 Text(confirmLabel)
             }
@@ -254,7 +258,9 @@ fun MdConfirmDialog(
             TextButton(onClick = onDismiss) {
                 Text(dismissLabel)
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shape = RoundedCornerShape(20.dp)
     )
 }
 
@@ -347,8 +353,11 @@ fun MdTextField(
             visualTransformation = visualTransformation,
             shape = FieldShape,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                focusedBorderColor = MdPrimary,
+                unfocusedBorderColor = MdOutlineStrong,
+                disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
             ),
             modifier = Modifier.fillMaxWidth()
         )
@@ -454,74 +463,83 @@ fun MdTopStrip(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .clickable(onClick = onProfileClick)
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MdAvatar(
-                initials = profileInitial,
-                size = 36.dp
+        MdAvatar(
+            initials = profileInitial,
+            size = 32.dp,
+            modifier = Modifier.clickable(onClick = onProfileClick)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = profileName ?: stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Switch Member",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Text(
-                    text = "Family Profile",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Text(
+                text = profileName ?: stringResource(R.string.all_profiles),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-
         Spacer(modifier = Modifier.weight(1f))
-
-        Surface(
+        // SOS pill (error container, icon + explicit uppercase label)
+        Button(
             onClick = onEmergencyClick,
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
-            modifier = Modifier.testTag("emergency_button")
+            border = null,
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ),
+            shape = ChipShape,
+            modifier = Modifier
+                .height(40.dp)
+                .testTag("emergency_button")
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.MedicalServices,
-                    contentDescription = stringResource(R.string.emergency_card),
+                    imageVector = Icons.Default.Emergency,
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(5.dp))
                 Text(
-                    text = "Emergency",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
+                    text = stringResource(R.string.sos_card),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
+        Spacer(modifier = Modifier.width(8.dp))
+        // Profile switch pill (48dp touch target)
+        Button(
+            onClick = onProfileClick,
+            border = null,
+            contentPadding = PaddingValues(end = 8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            shape = ChipShape,
+            modifier = Modifier
+                .height(48.dp)
+                .defaultMinSize(minWidth = 48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = stringResource(R.string.all_profiles),
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
-    MdDivider()
+    MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 }
 
 @Composable
@@ -580,4 +598,45 @@ fun MdBottomNav(
             colors = itemColors
         )
     }
+}
+
+// ── Accessible progress ring (Adherence summary) ─────────────────────
+@Composable
+fun MdProgressRing(
+    progress: Float,
+    size: Dp = 80.dp,
+    stroke: Dp = 7.dp,
+    centerContent: @Composable () -> Unit
+) {
+    val ringColor = MaterialTheme.colorScheme.primary
+    val trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    Box(
+        modifier = Modifier.size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        androidx.compose.material3.CircularProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier.size(size),
+            color = ringColor,
+            trackColor = trackColor,
+            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+            strokeWidth = stroke
+        )
+        centerContent()
+    }
+}
+
+// ── Left-edge status indicator stripe (4dp, dynamically coded) ───────
+@Composable
+fun MdListRowStripe(
+    color: Color,
+    modifier: Modifier = Modifier,
+    width: Dp = 4.dp
+) {
+    Box(
+        modifier = modifier
+            .width(width)
+            .fillMaxHeight()
+            .background(color)
+    )
 }

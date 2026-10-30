@@ -168,4 +168,5 @@
     <string name="empty_records">No health records found.</string>
     <string name="empty_medicines">No active medications found. Tap below to add a new medicine to your schedule.</string>
     <string name="all_done_celebration">Great job staying on track with your health today!</string>
+    <string name="sos_card">SOS Card</string>
 </resources>
