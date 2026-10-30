@@ -226,10 +226,12 @@ fun RecordRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .dawaCardShadow(3.dp, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
             .testTag("record_row_${rec.id}"),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(20.dp),
         tonalElevation = 0.dp
     ) {
         Column(
@@ -276,7 +278,7 @@ fun RecordRow(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "${rec.recordType.replace("_", " ")} ΓÇó ${rec.date}",
+                            text = "${rec.recordType.replace("_", " ")} • ${rec.date}",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
@@ -811,7 +813,7 @@ fun ViewRecordModal(
                     modifier = Modifier.align(Alignment.Start)
                 ) {
                     Text(
-                        text = "${rec.recordType.replace("_", " ")} ΓÇó Date: ${rec.date}",
+                        text = "${rec.recordType.replace("_", " ")} • Date: ${rec.date}",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,

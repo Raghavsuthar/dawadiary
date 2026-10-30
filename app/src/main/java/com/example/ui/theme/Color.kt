@@ -11,9 +11,16 @@ import androidx.compose.ui.graphics.Color
 // ── Brand (deep clinical teal) ───────────────────────────────────────
 val MdPrimary = Color(0xFF005050)          // primary interactive actions
 val MdPrimaryPressed = Color(0xFF004D40)   // active pressed state
-val MdPrimaryContainer = Color(0xFF006A6A) // high-emphasis teal container
+val MdPrimaryContainer = Color(0xFFD4F2F0) // soft mint-teal tile (icons/text use MdPrimary on top)
 val MdOnPrimary = Color(0xFFFFFFFF)
-val MdOnPrimaryContainer = Color(0xFF97E7E6)
+val MdOnPrimaryContainer = Color(0xFF00201F)
+
+// ── Brand gradient (hero cards, primary buttons, logo tile) ──────────
+val BrandGradientStart = Color(0xFF004444)
+val BrandGradientMid = Color(0xFF006A6A)
+val BrandGradientEnd = Color(0xFF12948C)
+val BrandGlow = Color(0xFF7AE0D4)          // light accent used on dark gradients
+val CardShadowTint = Color(0xFF004D40)     // tinted ambient/spot shadow for cards
 
 val MdPrimaryFixed = Color(0xFFA0F0F0)
 val MdPrimaryFixedDim = Color(0xFF84D4D3)
@@ -79,6 +86,7 @@ val MdOnWarning = Color(0xFFFFFFFF)
 
 val MdError = Color(0xFFBA1A1A)            // alert coral ink
 val MdErrorContainer = Color(0xFFFFDAD6)   // alert coral container
+val MdOnErrorContainer = Color(0xFF410002) // readable ink on coral container
 val MdOnError = Color(0xFFFFFFFF)
 
 // ── Elevation / stroke tokens ────────────────────────────────────────
@@ -130,7 +138,7 @@ val MedicalOnWarningContainer = MdOnSecondaryContainer
 val MedicalError = MdError
 val MedicalErrorContainer = MdErrorContainer
 val MedicalOnError = MdOnError
-val MedicalOnErrorContainer = MdOnPrimaryContainer
+val MedicalOnErrorContainer = MdOnErrorContainer
 val MedicalInfo = MdPrimary
 val MedicalInfoContainer = MdTertiaryFixed
 val MedicalOnInfo = MdOnPrimary

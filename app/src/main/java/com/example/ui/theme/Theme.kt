@@ -2,9 +2,11 @@ package com.example.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
 // ┌────────────────────────────────────────────────────────────────────┐
 // │  DawaDiary Theme — "Warm Clinical Material"                        │
@@ -43,7 +45,7 @@ private val LightColorScheme = lightColorScheme(
     error = MdError,
     onError = MdOnError,
     errorContainer = MdErrorContainer,
-    onErrorContainer = MdOnPrimaryContainer,
+    onErrorContainer = MdOnErrorContainer,
     inverseSurface = MdOnSurface,
     inverseOnSurface = MdSurface
 )
@@ -51,7 +53,7 @@ private val LightColorScheme = lightColorScheme(
 private val HighContrastColorScheme = lightColorScheme(
     primary = HighContrastPrimary,
     onPrimary = MdOnPrimary,
-    primaryContainer = MdPrimaryPressed,
+    primaryContainer = MdPrimaryFixed,
     onPrimaryContainer = HighContrastText,
     secondary = MdSecondary,
     onSecondary = MdOnSecondary,
@@ -83,6 +85,14 @@ private val HighContrastColorScheme = lightColorScheme(
     inverseOnSurface = MdSurface
 )
 
+private val DawaShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(24.dp),
+    extraLarge = RoundedCornerShape(32.dp)
+)
+
 @Composable
 fun DawaDiaryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -102,6 +112,7 @@ fun DawaDiaryTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = DawaShapes,
         content = content
     )
 }
