@@ -65,24 +65,44 @@ fun TodayScreen(
             )
         }
 
-        // ΓöÇΓöÇ Adherence summary (progress ring card, like calendar strip) ΓöÇΓöÇ
+        // ── Hero: adherence summary on brand gradient ──
         if (totalDoses > 0) {
             item {
-                Surface(
+                val heroShape = RoundedCornerShape(28.dp)
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                    shape = RoundedCornerShape(20.dp),
-                    tonalElevation = 0.dp
+                        .dawaCardShadow(8.dp, heroShape)
+                        .clip(heroShape)
+                        .background(BrandBrush)
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 48.dp, y = (-48).dp)
+                            .size(160.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.08f))
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .offset(x = (-36).dp, y = 36.dp)
+                            .size(110.dp)
+                            .clip(CircleShape)
+                            .background(BrandGlow.copy(alpha = 0.10f))
+                    )
                     Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        modifier = Modifier.padding(20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(18.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         MdProgressRing(
                             progress = takenDoses.toFloat() / totalDoses,
-                            size = 80.dp
+                            size = 92.dp,
+                            stroke = 9.dp,
+                            ringColor = Color.White,
+                            trackColor = Color.White.copy(alpha = 0.22f)
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,62 +112,50 @@ fun TodayScreen(
                                     text = "$adherencePercent%",
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = Color.White
                                 )
                                 Text(
                                     text = "Done",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color.White.copy(alpha = 0.85f)
                                 )
                             }
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Verified,
-                                    contentDescription = null,
-                                    tint = MdSecondary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(
-                                    text = "$takenDoses of $totalDoses doses taken",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MdSecondary
-                                )
-                            }
                             Text(
-                                text = if (allDone) "You've taken every dose today!" else "You're doing wonderfully!",
-                                style = MaterialTheme.typography.headlineSmall,
+                                text = "TODAY'S PROGRESS",
+                                style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(top = 4.dp)
+                                color = BrandGlow
                             )
-                            if (!allDone) {
-                                Surface(
-                                    shape = RoundedCornerShape(999.dp),
-                                    color = MdSecondaryContainer,
-                                    modifier = Modifier
-                                        .align(Alignment.Start)
-                                        .padding(top = 10.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Bedtime,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "${doses.size - doses.count { it.doseLog.status == "TAKEN" }} doses left",
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
-                                    }
-                                }
+                            Text(
+                                text = if (allDone) "Every dose taken today!" else "You're doing wonderfully!",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                                    .background(Color.White.copy(alpha = 0.16f), RoundedCornerShape(999.dp))
+                                    .padding(horizontal = 12.dp, vertical = 5.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (allDone) Icons.Default.Verified else Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (allDone) "$takenDoses of $totalDoses taken"
+                                    else "$takenDoses of $totalDoses taken • ${totalDoses - takenDoses} left",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
                             }
                         }
                     }
@@ -268,7 +276,7 @@ fun TodayHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 4.dp, vertical = 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -282,22 +290,19 @@ fun TodayHeader(
                 color = MdSecondary
             )
             Text(
-                text = "Auto-synced 8:20 AM",
+                text = "On this device",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                        RoundedCornerShape(999.dp)
-                    )
+                    .background(MdPrimaryContainer, RoundedCornerShape(999.dp))
                     .padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "$greeting, ${profile?.name ?: "Family"}",
-            style = MaterialTheme.typography.displayMedium,
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -333,13 +338,15 @@ fun DoseCard(
         else -> Triple(MdPrimaryContainer, MdPrimary, Icons.Default.Schedule)
     }
 
+    val cardShape = RoundedCornerShape(24.dp)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLowest, RoundedCornerShape(20.dp))
-            .clip(RoundedCornerShape(20.dp))
+            .dawaCardShadow(4.dp, cardShape)
+            .clip(cardShape)
             .testTag("dose_card_${dose.id}"),
-        color = Color.Transparent
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shape = cardShape
     ) {
         Row(
             verticalAlignment = Alignment.Top,
@@ -373,8 +380,8 @@ fun DoseCard(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(14.dp))
                             .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
@@ -399,7 +406,7 @@ fun DoseCard(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "${med.doseDescription} ΓÇó ${med.strength}",
+                            text = "${med.doseDescription} • ${med.strength}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
