@@ -87,9 +87,10 @@ fun FamilyScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .dawaCardShadow(6.dp, RoundedCornerShape(24.dp)),
             color = MaterialTheme.colorScheme.surfaceContainerLowest,
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(24.dp),
             tonalElevation = 0.dp
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
@@ -113,7 +114,7 @@ fun FamilyScreen(
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "${activeProfile?.relationship ?: "Self"} ΓÇó Blood Group: ${activeProfile?.bloodGroup?.ifBlank { "N/A" } ?: "N/A"}",
+                                text = "${activeProfile?.relationship ?: "Self"} • Blood Group: ${activeProfile?.bloodGroup?.ifBlank { "N/A" } ?: "N/A"}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -443,9 +444,9 @@ fun VitalRow(vital: VitalEntity) {
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().dawaCardShadow(3.dp, RoundedCornerShape(20.dp)),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(20.dp),
         tonalElevation = 0.dp
     ) {
         Row(
@@ -516,9 +517,9 @@ fun AppointmentRow(appointment: AppointmentEntity) {
         .format(DateTimeFormatter.ofPattern("EEEE, d MMM yyyy at hh:mm a"))
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().dawaCardShadow(3.dp, RoundedCornerShape(20.dp)),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(20.dp),
         tonalElevation = 0.dp
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
