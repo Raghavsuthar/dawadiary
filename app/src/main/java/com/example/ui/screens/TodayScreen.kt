@@ -1,8 +1,10 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,7 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,6 +63,91 @@ fun TodayScreen(
                 takenDoses = takenDoses,
                 adherencePercent = adherencePercent
             )
+        }
+
+        // ── Adherence summary (progress ring card, like calendar strip) ──
+        if (totalDoses > 0) {
+            item {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    shape = RoundedCornerShape(20.dp),
+                    tonalElevation = 0.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        MdProgressRing(
+                            progress = takenDoses.toFloat() / totalDoses,
+                            size = 80.dp
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "$adherencePercent%",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Done",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                MdIcon(Icons.Default.Verified, tint = MdSecondary, size = 18.dp)
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = "$takenDoses of $totalDoses doses taken",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MdSecondary
+                                )
+                            }
+                            Text(
+                                text = if (allDone) "You've taken every dose today!" else "You're doing wonderfully!",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            if (!allDone) {
+                                Surface(
+                                    shape = RoundedCornerShape(999.dp),
+                                    color = MdSecondaryContainer,
+                                    modifier = Modifier
+                                        .align(Alignment.Start)
+                                        .padding(top = 10.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Bedtime,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(15.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "${doses.size - doses.count { it.doseLog.status == "TAKEN" }} doses left",
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // ── Low stock alert (subtle banner) ──
@@ -163,7 +252,7 @@ fun TodayHeader(
     takenDoses: Int,
     adherencePercent: Int
 ) {
-    val todayFormatted = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
+    val todayFormatted = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d"))
     val currentHour = LocalTime.now().hour
     val greeting = when {
         currentHour < 12 -> "Good morning"
@@ -179,89 +268,39 @@ fun TodayHeader(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = todayFormatted,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "$greeting, ${profile?.name ?: "Family"}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            MdAvatar(
-                initials = profile?.name?.take(1) ?: "D",
-                size = 40.dp,
-                modifier = Modifier.align(Alignment.Top)
+            Text(
+                text = todayFormatted.uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MdSecondary
             )
-        }
-
-        if (totalDoses > 0) {
-            Spacer(modifier = Modifier.height(16.dp))
-            MdDivider(modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.adherence_rate),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "$takenDoses of $totalDoses doses taken",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                MdStatusChip(
-                    bgColor = if (adherencePercent == 100) MdSuccessContainer else MdPrimaryContainer,
-                    textColor = if (adherencePercent == 100) MdSuccess else MdPrimary,
-                    text = "$adherencePercent%",
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { takenDoses.toFloat() / totalDoses },
+            Text(
+                text = "Auto-synced 8:20 AM",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = if (adherencePercent == 100) MdSuccess else MdPrimary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainerHigh,
+                        RoundedCornerShape(999.dp)
+                    )
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
             )
-        } else {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.EventAvailable,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "No doses scheduled for today",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "$greeting, ${profile?.name ?: "Family"}",
+            style = MaterialTheme.typography.displayMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "Here is your care plan for a healthy and restful day.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -292,17 +331,32 @@ fun DoseCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* card itself is not an action; buttons handle input */ }
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(20.dp))
             .testTag("dose_card_${dose.id}"),
-        color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(14.dp),
-        tonalElevation = 0.dp
+        color = Color.Transparent
     ) {
-        Column(
+        Row(
+            verticalAlignment = Alignment.Top,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .height(IntrinsicSize.Min)
         ) {
+            // Left indicator stripe (status-colored, like above)
+            MdListRowStripe(
+                color = when (dose.status) {
+                    "TAKEN" -> MdSuccess
+                    "SNOOZED" -> MdWarning
+                    "MISSED" -> MdError
+                    "SKIPPED" -> MaterialTheme.colorScheme.outline
+                    else -> MaterialTheme.colorScheme.primary
+                }
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(16.dp)
+            ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -431,16 +485,17 @@ fun DoseCard(
                     )
                 }
             }
-        }
-    }
-}
+            } // Column (card content)
+        } // Row (stripe + content)
+    } // Surface (card)
+} // DoseCard
 
 // ── Subtle colored banner (replaces bordered alert cards) ────────────
 @Composable
 private fun MdStatusBanner(
     bgColor: Color,
     textColor: Color,
-    icon: androidx.compose.material3.ImageVector,
+    icon: ImageVector,
     title: String,
     subtitle: String
 ) {

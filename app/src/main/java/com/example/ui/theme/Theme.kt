@@ -13,26 +13,31 @@ import androidx.compose.ui.platform.LocalContext
 // │  and dynamic color are optional accessibility layers.              │
 // └────────────────────────────────────────────────────────────────────┘
 
-// Authoritative light color scheme (minimalist)
+// Authoritative light color scheme ("Warm Clinical Material")
 val LightColorScheme = lightColorScheme(
     primary = MdPrimary,
     onPrimary = MdOnPrimary,
     primaryContainer = MdPrimaryContainer,
     onPrimaryContainer = MdOnPrimaryContainer,
-    secondary = MdPrimary,
-    onSecondary = MdOnPrimary,
-    secondaryContainer = MdPrimaryContainer,
-    onSecondaryContainer = MdOnPrimaryContainer,
-    tertiary = MdPrimary,
-    onTertiary = MdOnPrimary,
-    tertiaryContainer = MdPrimaryContainer,
-    onTertiaryContainer = MdOnPrimaryContainer,
+    secondary = MdSecondary,
+    onSecondary = MdOnSecondary,
+    secondaryContainer = MdSecondaryContainer,
+    onSecondaryContainer = MdOnSecondaryContainer,
+    tertiary = MdTertiary,
+    onTertiary = MdOnTertiary,
+    tertiaryContainer = MdTertiaryContainer,
+    onTertiaryContainer = MdOnTertiaryContainer,
     background = MdBackground,
     onBackground = MdOnSurface,
     surface = MdSurface,
     onSurface = MdOnSurface,
     surfaceVariant = MdSurfaceVariant,
     onSurfaceVariant = MdOnSurfaceVariant,
+    surfaceContainerLowest = MdSurfaceContainerLowest,
+    surfaceContainerLow = MdSurfaceContainerLow,
+    surfaceContainer = MdSurfaceContainer,
+    surfaceContainerHigh = MdSurfaceContainerHigh,
+    surfaceContainerHighest = MdSurfaceContainerHighest,
     outline = MdOutline,
     outlineVariant = MdOutline,
     error = MdError,
@@ -41,22 +46,22 @@ val LightColorScheme = lightColorScheme(
     onErrorContainer = MdOnPrimaryContainer,
     inverseSurface = MdOnSurface,
     inverseOnSurface = MdSurface,
-    inversePrimary = MdPrimaryContainer
+    inversePrimary = MdPrimaryFixedDim
 )
 
 // High-contrast light scheme for enhanced legibility
 val HighContrastLightColorScheme = lightColorScheme(
     primary = HighContrastPrimary,
     onPrimary = MdOnPrimary,
-    primaryContainer = MdPrimaryContainer,
-    onPrimaryContainer = HighContrastText,
-    secondary = MdPrimary,
+    primaryContainer = MdPrimaryPressed,
+    onPrimaryContainer = MdPrimaryFixed,
+    secondary = HighContrastPrimary,
     onSecondary = MdOnPrimary,
-    secondaryContainer = MdPrimaryContainer,
+    secondaryContainer = MdSecondaryContainer,
     onSecondaryContainer = HighContrastText,
-    tertiary = MdPrimary,
-    onTertiary = MdOnPrimary,
-    tertiaryContainer = MdPrimaryContainer,
+    tertiary = MdTertiary,
+    onTertiary = MdOnTertiary,
+    tertiaryContainer = MdTertiaryContainer,
     onTertiaryContainer = HighContrastText,
     background = MdBackground,
     onBackground = HighContrastText,
@@ -64,6 +69,11 @@ val HighContrastLightColorScheme = lightColorScheme(
     onSurface = HighContrastText,
     surfaceVariant = MdSurfaceVariant,
     onSurfaceVariant = HighContrastSecondaryText,
+    surfaceContainerLowest = MdSurfaceContainerLowest,
+    surfaceContainerLow = MdSurfaceContainerLow,
+    surfaceContainer = MdSurfaceContainer,
+    surfaceContainerHigh = MdSurfaceContainerHigh,
+    surfaceContainerHighest = MdSurfaceContainerHighest,
     outline = HighContrastOutline,
     outlineVariant = HighContrastOutline,
     error = MdError,
@@ -72,7 +82,7 @@ val HighContrastLightColorScheme = lightColorScheme(
     onErrorContainer = MdOnPrimaryContainer,
     inverseSurface = HighContrastText,
     inverseOnSurface = MdSurface,
-    inversePrimary = MdPrimaryContainer
+    inversePrimary = MdPrimaryFixedDim
 )
 
 @Composable

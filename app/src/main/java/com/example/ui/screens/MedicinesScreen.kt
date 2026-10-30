@@ -1,9 +1,12 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -12,11 +15,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -51,7 +56,7 @@ fun MedicinesScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, top = 8.dp, bottom = 4.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
         ) {
             Text(
                 text = stringResource(R.string.medicines_title),
@@ -162,7 +167,7 @@ fun MedicineRow(
             .fillMaxWidth()
             .clickable(onClick = onEdit)
             .testTag("medicine_row_${med.id}"),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(14.dp),
         tonalElevation = 0.dp
     ) {
@@ -333,7 +338,7 @@ fun AddEditMedicineDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLowest,
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .padding(vertical = 12.dp),
@@ -549,7 +554,6 @@ fun AddEditMedicineDialog(
                         },
                         label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
                         fullWidth = false,
-                        modifier = Modifier.align(Alignment.End)
                     )
                 }
             }

@@ -8,6 +8,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -381,7 +382,9 @@ fun SettingsScreen(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -418,7 +421,6 @@ fun SettingsScreen(
                 modifier = Modifier.weight(1f).height(46.dp)
             )
         }
-        .padding(horizontal = 16.dp)
 
         // ── Section: About ──
         MdSection(
@@ -447,17 +449,18 @@ fun SettingsScreen(
         )
         MdTextButton(
             onClick = { showDisclaimerInfoDialog = true },
-            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.Start)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(imageVector = Icons.Default.HealthAndSafety, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("View Medical Disclaimer & Privacy Notice")
+            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.Start),
+            label = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = Icons.Default.HealthAndSafety, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("View Medical Disclaimer & Privacy Notice")
+                }
             }
-        }
+        )
 
         // ── Danger Zone: Erase all data ──
         MdSection(
@@ -488,8 +491,10 @@ fun SettingsScreen(
         MdPrimaryButton(
             onClick = { showDeleteConfirmDialog = true },
             label = { Text("Erase All Data Permanently", fontWeight = FontWeight.Bold) },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(46.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MdError, contentColor = Color.White)
+            fullWidth = true,
+            modifier = Modifier.padding(horizontal = 16.dp),
+            containerColor = MdError,
+            contentColor = Color.White
         )
     }
 
@@ -598,7 +603,7 @@ fun SetPinDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLowest,
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .padding(vertical = 12.dp),
@@ -700,7 +705,6 @@ fun SetPinDialog(
                             onPinSaved(pin)
                         },
                         label = { Text("Save PIN", fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
                     )
                 }
             }
@@ -724,7 +728,7 @@ fun BackupPasswordDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLowest,
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .padding(vertical = 12.dp),
@@ -803,7 +807,6 @@ fun BackupPasswordDialog(
                             onSubmit(password)
                         },
                         label = { Text(buttonLabel, fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.align(Alignment.End)
                     )
                 }
             }

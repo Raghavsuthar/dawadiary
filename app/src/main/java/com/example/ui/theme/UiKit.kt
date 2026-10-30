@@ -1,8 +1,10 @@
 package com.example.ui.theme
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,24 +14,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.R
 
 // ┌────────────────────────────────────────────────────────────────────┐
-// │  DawaDiary Minimalist UI Kit                                       │
+// │  DawaDiary "Warm Clinical Material" UI Kit (Stitch design)         │
 // │  Shared primitives so every screen looks consistent & uncluttered. │
 // └────────────────────────────────────────────────────────────────────┘
 
-private val CardShape = RoundedCornerShape(14.dp)
-private val ChipShape = RoundedCornerShape(10.dp)
+// 8dp/4dp grid, welcoming curvature: cards 20dp, buttons 16dp, fields 12dp,
+// chips & status badges fully rounded pills.
+private val CardShape = RoundedCornerShape(20.dp)
+private val ChipShape = RoundedCornerShape(9999.dp)
 private val FieldShape = RoundedCornerShape(12.dp)
-private val ButtonShape = RoundedCornerShape(12.dp)
+private val ButtonShape = RoundedCornerShape(16.dp)
 
-// ── Subtle surface container (replaces heavy bordered cards) ─────────
+// ── Pristine white card (Level 1 surface over warm off-white canvas) ─
 @Composable
 fun MdSurface(
     modifier: Modifier = Modifier,
@@ -40,25 +47,70 @@ fun MdSurface(
         modifier = modifier
             .fillMaxWidth()
             .padding(padding),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = CardShape,
         tonalElevation = 0.dp,
         content = content
     )
 }
 
-// ── Divider (subtle, replaces heavy borders) ─────────────────────────
+// ── Warm ambient shadow card (design token Level 1: 0px 2px 8px) ─────
+@Composable
+fun MdCardShadow() = Level1AmbientAlpha
+
+// ── Divider (outline-variant, replaces heavy borders) ────────────────
 @Composable
 fun MdDivider(
     modifier: Modifier = Modifier,
     thickness: Dp = 1.dp,
-    color: Color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+    color: Color = MaterialTheme.colorScheme.outline
 ) {
     HorizontalDivider(
         modifier = modifier,
         color = color,
         thickness = thickness
     )
+}
+
+// ── Left-edge status indicator stripe (4dp, dynamically coded) ───────
+@Composable
+fun MdListRowStripe(
+    color: Color,
+    modifier: Modifier = Modifier,
+    width: Dp = 4.dp
+) {
+    Box(
+        modifier = modifier
+            .width(width)
+            .fillMaxHeight()
+            .background(color)
+    )
+}
+
+// ── Accessible progress ring (Adherence summary) ─────────────────────
+@Composable
+fun MdProgressRing(
+    progress: Float,
+    size: Dp = 80.dp,
+    stroke: Dp = 7.dp,
+    centerContent: @Composable () -> Unit
+) {
+    val ringColor = MaterialTheme.colorScheme.primary
+    val trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    Box(
+        modifier = Modifier.size(size),
+        contentAlignment = Alignment.Center
+    ) {
+        androidx.compose.material3.CircularProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier.size(size),
+            color = ringColor,
+            trackColor = trackColor,
+            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+            strokeWidth = stroke
+        )
+        centerContent()
+    }
 }
 
 // ── Section header: title + optional trailing action ─────────────────
@@ -116,32 +168,43 @@ fun MdListRow(
     }
 }
 
-// ── Primary filled button (teal) ─────────────────────────────────────
+// ── Filled primary button (52dp, teal, radius 16 — motor-friendly) ───
 @Composable
 fun MdPrimaryButton(
     onClick: () -> Unit,
     label: @Composable () -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    fullWidth: Boolean = false
+    fullWidth: Boolean = false,
+    containerColor: Color? = null,
+    contentColor: Color? = null
 ) {
     Button(
         onClick = onClick,
         enabled = enabled,
+        contentPadding = PaddingValues(horizontal = 20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f),
-            contentColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            containerColor = when {
+                !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f)
+                containerColor != null -> containerColor
+                else -> MaterialTheme.colorScheme.primary
+            },
+            contentColor = when {
+                !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                contentColor != null -> contentColor
+                else -> MaterialTheme.colorScheme.onPrimary
+            }
         ),
         shape = ButtonShape,
         modifier = modifier
             .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
-            .height(50.dp)
+            .height(52.dp)
     ) {
         label()
     }
 }
 
-// ── Outline button ───────────────────────────────────────────────────
+// ── Tonal button (mint/shell — non-primary affirmations) ─────────────
 @Composable
 fun MdOutlineButton(
     onClick: () -> Unit,
@@ -149,17 +212,17 @@ fun MdOutlineButton(
     modifier: Modifier = Modifier,
     fullWidth: Boolean = false
 ) {
-    OutlinedButton(
+    Button(
         onClick = onClick,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        border = null,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
         shape = ButtonShape,
         modifier = modifier
             .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
-            .height(50.dp)
+            .height(52.dp)
     ) {
         label()
     }
@@ -174,6 +237,7 @@ fun MdTextButton(
 ) {
     TextButton(
         onClick = onClick,
+        contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
@@ -183,7 +247,7 @@ fun MdTextButton(
     }
 }
 
-// ── Small pill chip ──────────────────────────────────────────────────
+// ── Fully rounded pill chip (prevents misinterpretation) ─────────────
 @Composable
 fun MdChip(
     selected: Boolean,
@@ -191,20 +255,23 @@ fun MdChip(
     label: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FilterChip(
-        selected = selected,
+    Button(
         onClick = onClick,
-        label = label,
-        shape = ChipShape,
-        colors = FilterChipDefaults.colors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
+        border = null,
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
         ),
+        shape = ChipShape,
         modifier = modifier
-    )
+            .height(48.dp)
+    ) {
+        label()
+    }
 }
 
-// ── Minimalist outlined text field ───────────────────────────────────
+// ── Minimalist outlined text field (12dp radius, visible helpers) ────
 @Composable
 fun MdTextField(
     value: String,
@@ -214,7 +281,7 @@ fun MdTextField(
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
     keyboardOptions: androidx.compose.foundation.text.KeyboardOptions = KeyboardOptions.Default,
-    visualTransformation: androidx.compose.ui.text.input.VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
     maxLines: Int = 1,
     minLines: Int = 1,
@@ -235,11 +302,11 @@ fun MdTextField(
         minLines = minLines,
         enabled = enabled,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-            disabledIndicatorColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MdOutlineStrong,
+            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ),
         shape = FieldShape,
@@ -247,7 +314,7 @@ fun MdTextField(
     )
 }
 
-// ── Icon + label pill (for status chips) ─────────────────────────────
+// ── Compact status pill (32dp: icon + explicit text, never icon alone) ─
 @Composable
 fun MdStatusChip(
     bgColor: Color,
@@ -258,20 +325,20 @@ fun MdStatusChip(
 ) {
     Surface(
         color = bgColor,
-        shape = RoundedCornerShape(8.dp),
-        modifier = modifier
+        shape = ChipShape,
+        modifier = modifier.height(32.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 12.dp)
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = textColor,
-                modifier = Modifier.size(12.dp)
+                modifier = Modifier.size(16.dp)
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = text,
                 color = textColor,
@@ -301,20 +368,20 @@ fun MdEmptyState(
             modifier = Modifier
                 .size(64.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(36.dp)
+                tint = MdOutlineStrong,
+                modifier = Modifier.size(32.dp)
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -344,19 +411,22 @@ fun MdAvatar(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant),
+            .background(
+                if (selected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.secondaryContainer
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = initials,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleMedium,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
 }
 
-// ── Top strip: app title / profile + emergency (minimalist) ──────────
+// ── Top strip: brand icon + title + SOS pill + profile switch ────────
 @Composable
 fun MdTopStrip(
     profileName: String?,
@@ -368,48 +438,83 @@ fun MdTopStrip(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Profile chip (left)
         MdAvatar(
             initials = profileInitial,
-            size = 36.dp,
+            size = 32.dp,
             modifier = Modifier.clickable(onClick = onProfileClick)
         )
         Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
-                text = profileName ?: stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleMedium,
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = stringResource(R.string.all_profiles),
+                text = profileName ?: stringResource(R.string.all_profiles),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        // Emergency (right) — subtle icon button, not a big red block
-        IconButton(
+        // SOS Card pill (error-container, icon + uppercase label)
+        Button(
             onClick = onEmergencyClick,
-            modifier = Modifier.testTag("emergency_button")
+            border = null,
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ),
+            shape = ChipShape,
+            modifier = Modifier
+                .height(40.dp)
+                .testTag("emergency_button")
         ) {
             Icon(
                 imageVector = Icons.Default.Emergency,
-                contentDescription = stringResource(R.string.emergency_card),
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                text = stringResource(R.string.sos_card),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        // Profile switch pill (48dp min target)
+        Button(
+            onClick = onProfileClick,
+            border = null,
+            contentPadding = PaddingValues(end = 8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            shape = ChipShape,
+            modifier = Modifier
+                .height(48.dp)
+                .defaultMinSize(minWidth = 48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = stringResource(R.string.all_profiles),
+                modifier = Modifier.size(20.dp)
             )
         }
     }
     MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 }
 
-// ── Bottom navigation (minimalist, tonal) ────────────────────────────
+// ── Bottom navigation (canvas surface, teal active state) ────────────
 @Composable
 fun MdBottomNav(
     currentTab: String,
@@ -421,14 +526,14 @@ fun MdBottomNav(
             .windowInsetsPadding(WindowInsets.navigationBars)
             .testTag("bottom_nav_bar"),
         containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.dp,
-        indicator = { /* no floating indicator — subtle tint only */ }
+        tonalElevation = 0.dp
     ) {
         val itemColors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.primary,
             selectedTextColor = MaterialTheme.colorScheme.primary,
             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            indicatorColor = Color.Transparent
         )
 
         NavigationBarItem(
@@ -477,7 +582,7 @@ fun MdBottomNav(
 // ── Small inline section icon ──────────────────────────────────────────
 @Composable
 fun MdIcon(
-    imageVector: androidx.compose.material3.ImageVector,
+    imageVector: ImageVector,
     tint: androidx.compose.ui.graphics.Color,
     size: Dp = 20.dp
 ) {
@@ -489,7 +594,7 @@ fun MdIcon(
     )
 }
 
-// ── Minimalist confirm dialog ──────────────────────────────────────────
+// ── Confirmation dialog (white rounded card) ──────────────────────────
 @Composable
 fun MdConfirmDialog(
     title: String,
@@ -527,7 +632,7 @@ fun MdConfirmDialog(
             Button(
                 onClick = { onConfirm() },
                 colors = ButtonDefaults.buttonColors(containerColor = confirmColor, contentColor = Color.White),
-                shape = RoundedCornerShape(10.dp)
+                shape = ButtonShape
             ) {
                 Text(confirmLabel)
             }
@@ -538,12 +643,12 @@ fun MdConfirmDialog(
                 label = { Text(stringResource(R.string.cancel)) }
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(20.dp)
     )
 }
 
-// ── Minimalist info dialog ─────────────────────────────────────────────
+// ── Info dialog (white rounded card) ──────────────────────────────────
 @Composable
 fun MdInfoDialog(
     title: String,
@@ -574,7 +679,7 @@ fun MdInfoDialog(
                 label = { Text("Understood") }
             )
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(20.dp)
     )
 }
