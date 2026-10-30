@@ -14,6 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -29,6 +32,37 @@ private val ChipShape = RoundedCornerShape(9999.dp)
 private val FieldShape = RoundedCornerShape(12.dp)
 private val ButtonShape = RoundedCornerShape(16.dp)
 
+/** Brand teal gradient used by hero cards, primary buttons and the logo tile. */
+val BrandBrush: Brush
+    get() = Brush.linearGradient(listOf(BrandGradientStart, BrandGradientMid, BrandGradientEnd))
+
+/** Soft teal-tinted elevation shared by every card so the app reads as one system. */
+fun Modifier.dawaCardShadow(elevation: Dp, shape: Shape): Modifier = this.shadow(
+    elevation = elevation,
+    shape = shape,
+    ambientColor = CardShadowTint.copy(alpha = 0.10f),
+    spotColor = CardShadowTint.copy(alpha = 0.20f)
+)
+
+/** Elevated white card with a hairline tint border. */
+@Composable
+fun MdCard(
+    modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(24.dp),
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .dawaCardShadow(4.dp, shape),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shape = shape,
+        border = BorderStroke(1.dp, MdPrimary.copy(alpha = OutlineTintAlpha)),
+        tonalElevation = 0.dp,
+        content = content
+    )
+}
+
 @Composable
 fun MdSurface(
     modifier: Modifier = Modifier,
@@ -38,9 +72,11 @@ fun MdSurface(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(padding),
+            .padding(padding)
+            .dawaCardShadow(4.dp, CardShape),
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = CardShape,
+        border = BorderStroke(1.dp, MdPrimary.copy(alpha = OutlineTintAlpha)),
         tonalElevation = 0.dp,
         content = content
     )
@@ -112,16 +148,19 @@ fun MdPrimaryButton(
     enabled: Boolean = true,
     fullWidth: Boolean = false
 ) {
+    val base = (if (fullWidth) modifier.fillMaxWidth() else modifier).height(52.dp)
     Button(
         onClick = onClick,
         enabled = enabled,
         shape = ButtonShape,
         contentPadding = PaddingValues(horizontal = 20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
         ),
-        modifier = (if (fullWidth) modifier.fillMaxWidth() else modifier).height(52.dp)
+        modifier = if (enabled) base.background(BrandBrush, ButtonShape) else base
     ) {
         label()
     }
@@ -140,9 +179,10 @@ fun MdOutlineButton(
         enabled = enabled,
         shape = ButtonShape,
         contentPadding = PaddingValues(horizontal = 20.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = MaterialTheme.colorScheme.onSurface
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            contentColor = MaterialTheme.colorScheme.primary
         ),
         modifier = (if (fullWidth) modifier.fillMaxWidth() else modifier).height(52.dp)
     ) {
@@ -214,7 +254,8 @@ fun MdChip(
     Surface(
         onClick = onClick,
         shape = ChipShape,
-        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLowest,
+        border = if (selected) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = modifier
     ) {
         Box(
@@ -380,13 +421,15 @@ fun MdAvatar(
     size: Dp = 40.dp,
     selected: Boolean = false
 ) {
-    val bg = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-    val fg = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
+    val fg = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(bg),
+            .then(
+                if (selected) Modifier.background(BrandBrush)
+                else Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -415,16 +458,16 @@ fun MdEmptyState(
     ) {
         Box(
             modifier = Modifier
-                .size(64.dp)
+                .size(72.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(32.dp)
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(36.dp)
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -465,7 +508,8 @@ fun MdTopStrip(
     ) {
         MdAvatar(
             initials = profileInitial,
-            size = 32.dp,
+            size = 40.dp,
+            selected = true,
             modifier = Modifier.clickable(onClick = onProfileClick)
         )
         Spacer(modifier = Modifier.width(10.dp))
@@ -550,14 +594,16 @@ fun MdBottomNav(
 ) {
     NavigationBar(
         modifier = modifier
+            .shadow(12.dp, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp), ambientColor = CardShadowTint.copy(alpha = 0.15f), spotColor = CardShadowTint.copy(alpha = 0.25f))
             .windowInsetsPadding(WindowInsets.navigationBars)
             .testTag("bottom_nav_bar"),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         tonalElevation = 0.dp
     ) {
         val itemColors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.primary,
             selectedTextColor = MaterialTheme.colorScheme.primary,
+            indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -606,10 +652,10 @@ fun MdProgressRing(
     progress: Float,
     size: Dp = 80.dp,
     stroke: Dp = 7.dp,
+    ringColor: Color = MaterialTheme.colorScheme.primary,
+    trackColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     centerContent: @Composable () -> Unit
 ) {
-    val ringColor = MaterialTheme.colorScheme.primary
-    val trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
