@@ -1,6 +1,5 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -22,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -53,7 +52,7 @@ fun MedicinesScreen(
             .testTag("medicines_screen")
             .verticalScroll(rememberScrollState())
     ) {
-        // ── Header ──
+        // ΓöÇΓöÇ Header ΓöÇΓöÇ
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -70,17 +69,10 @@ fun MedicinesScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Your schedule, stock and reminders in one place.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
-            )
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-        // ── Content ──
+        // ΓöÇΓöÇ Content ΓöÇΓöÇ
         if (medicines.isEmpty()) {
             MdEmptyState(
                 icon = Icons.Default.Medication,
@@ -127,7 +119,7 @@ fun MedicinesScreen(
         }
     }
 
-    // ── Add / edit dialog ──
+    // ΓöÇΓöÇ Add / edit dialog ΓöÇΓöÇ
     if (showDialog) {
         AddEditMedicineDialog(
             activeProfileId = activeProfile?.id ?: 1L,
@@ -144,7 +136,7 @@ fun MedicinesScreen(
         )
     }
 
-    // ── Delete confirm ──
+    // ΓöÇΓöÇ Delete confirm ΓöÇΓöÇ
     if (medicineToDelete != null) {
         MdConfirmDialog(
             title = "Delete Medicine?",
@@ -175,9 +167,8 @@ fun MedicineRow(
             .fillMaxWidth()
             .clickable(onClick = onEdit)
             .testTag("medicine_row_${med.id}"),
-        color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shape = RoundedCornerShape(14.dp),
         tonalElevation = 0.dp
     ) {
         Column(
@@ -222,7 +213,7 @@ fun MedicineRow(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "${med.doseDescription} • ${med.strength} (${med.form})",
+                            text = "${med.doseDescription} ΓÇó ${med.strength} (${med.form})",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -347,7 +338,7 @@ fun AddEditMedicineDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLowest,
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .padding(vertical = 12.dp),
@@ -562,7 +553,7 @@ fun AddEditMedicineDialog(
                             onSave(med, sched)
                         },
                         label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
-                        fullWidth = false
+                        fullWidth = false,
                     )
                 }
             }
