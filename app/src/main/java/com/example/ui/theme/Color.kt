@@ -2,111 +2,99 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ┌────────────────────────────────────────────────────────────────────┐
-// │  DawaDiary "Warm Clinical Material" Palette (Stitch design)          │
-// │  Deep teal primary, mint / lavender / amber / coral accents.         │
-// │  Pristine white cards over a warm off-white canvas.                  │
-// └────────────────────────────────────────────────────────────────────┘
-
-// ── Brand (deep clinical teal) ───────────────────────────────────────
-val MdPrimary = Color(0xFF005050)          // primary interactive actions
-val MdPrimaryPressed = Color(0xFF004D40)   // active pressed state
-val MdPrimaryContainer = Color(0xFFD4F2F0) // soft mint-teal tile (icons/text use MdPrimary on top)
+// DawaDiary — Stitch visual system: calm, friendly and clinically clear.
+// Core palette sampled from the approved Figma screens.
+val MdPrimary = Color(0xFF147D70)
+val MdPrimaryPressed = Color(0xFF0E665D)
+val MdPrimaryContainer = Color(0xFFD1F0E0)
 val MdOnPrimary = Color(0xFFFFFFFF)
-val MdOnPrimaryContainer = Color(0xFF00201F)
+val MdOnPrimaryContainer = Color(0xFF123B37)
 
-// ── Brand gradient (hero cards, primary buttons, logo tile) ──────────
-val BrandGradientStart = Color(0xFF004444)
-val BrandGradientMid = Color(0xFF006A6A)
-val BrandGradientEnd = Color(0xFF12948C)
-val BrandGlow = Color(0xFF7AE0D4)          // light accent used on dark gradients
-val CardShadowTint = Color(0xFF004D40)     // tinted ambient/spot shadow for cards
+val BrandGradientStart = Color(0xFF147D70)
+val BrandGradientMid = Color(0xFF23998A)
+val BrandGradientEnd = Color(0xFF57B9A4)
+val BrandGlow = Color(0xFFB8E8D7)
+val CardShadowTint = Color(0xFF315E56)
 
-val MdPrimaryFixed = Color(0xFFA0F0F0)
-val MdPrimaryFixedDim = Color(0xFF84D4D3)
-val MdOnPrimaryFixed = Color(0xFF002020)
-val MdOnPrimaryFixedVariant = Color(0xFF004F4F)
+val MdPrimaryFixed = Color(0xFFB8E8D7)
+val MdPrimaryFixedDim = Color(0xFF8DD5C0)
+val MdOnPrimaryFixed = Color(0xFF123B37)
+val MdOnPrimaryFixedVariant = Color(0xFF275E55)
 
-// ── Secondary (soft mint) ────────────────────────────────────────────
-val MdSecondary = Color(0xFF006A62)
+val MdSecondary = Color(0xFF477F72)
 val MdOnSecondary = Color(0xFFFFFFFF)
-val MdSecondaryContainer = Color(0xFF81F3E5)
-val MdOnSecondaryContainer = Color(0xFF006F66)
+val MdSecondaryContainer = Color(0xFFD1F0E0)
+val MdOnSecondaryContainer = Color(0xFF24584F)
 
-val MdSecondaryFixed = Color(0xFF84F5E8)
-val MdSecondaryFixedDim = Color(0xFF66D9CC)
-val MdOnSecondaryFixed = Color(0xFF00201D)
-val MdOnSecondaryFixedVariant = Color(0xFF005049)
+val MdSecondaryFixed = Color(0xFFD1F0E0)
+val MdSecondaryFixedDim = Color(0xFFB6E2D0)
+val MdOnSecondaryFixed = Color(0xFF173D36)
+val MdOnSecondaryFixedVariant = Color(0xFF315E56)
 
-// ── Tertiary (lavender — external care / appointments) ───────────────
-val MdTertiary = Color(0xFF443C8B)
+val MdTertiary = Color(0xFF6655A5)
 val MdOnTertiary = Color(0xFFFFFFFF)
-val MdTertiaryContainer = Color(0xFF5C54A5)
-val MdOnTertiaryContainer = Color(0xFFDAD4FF)
-val MdTertiaryFixed = Color(0xFFE4DFFF)
-val MdTertiaryFixedDim = Color(0xFFC6BFFF)
-val MdOnTertiaryFixed = Color(0xFF17065F)
-val MdOnTertiaryFixedVariant = Color(0xFF443B8B)
+val MdTertiaryContainer = Color(0xFFE8E0FA)
+val MdOnTertiaryContainer = Color(0xFF35265F)
+val MdTertiaryFixed = Color(0xFFE8E0FA)
+val MdTertiaryFixedDim = Color(0xFFD4C8F1)
+val MdOnTertiaryFixed = Color(0xFF35265F)
+val MdOnTertiaryFixedVariant = Color(0xFF55458D)
 
-// ── Surface / background ─────────────────────────────────────────────
-val MdBackground = Color(0xFFF8FAF9)       // warm off-white canvas
-val MdSurface = Color(0xFFF8FAF9)          // canvas surfaces (top strip, nav)
-val MdOnSurface = Color(0xFF191C1C)        // primary text (soft ink)
-val MdOnSurfaceVariant = Color(0xFF3E4948) // secondary text
-val MdSurfaceVariant = Color(0xFFE1E3E2)   // tonal chip / tag background
-val MdOutline = Color(0xFFBEC9C8)          // subtle dividers / borders
-val MdOutlineStrong = Color(0xFF6E7979)    // form rest borders
+// Pale green page canvas and clean white cards from Figma.
+val MdBackground = Color(0xFFF7FAF5)
+val MdSurface = Color(0xFFF7FAF5)
+val MdOnSurface = Color(0xFF1A2B33)
+val MdOnSurfaceVariant = Color(0xFF61757A)
+val MdSurfaceVariant = Color(0xFFE9EFEB)
+val MdOutline = Color(0xFFDCE6E0)
+val MdOutlineStrong = Color(0xFF82958F)
 
-val MdSurfaceContainerLowest = Color(0xFFFFFFFF) // pristine white cards
-val MdSurfaceContainerLow = Color(0xFFF2F4F3)
-val MdSurfaceContainer = Color(0xFFEDEEED)
-val MdSurfaceContainerHigh = Color(0xFFE7E8E8)
-val MdSurfaceContainerHighest = Color(0xFFE1E3E2)
-val MdSurfaceDim = Color(0xFFD9DADA)
+val MdSurfaceContainerLowest = Color(0xFFFFFFFF)
+val MdSurfaceContainerLow = Color(0xFFF1F6F1)
+val MdSurfaceContainer = Color(0xFFEAF1EB)
+val MdSurfaceContainerHigh = Color(0xFFE3ECE5)
+val MdSurfaceContainerHighest = Color(0xFFDCE6DF)
+val MdSurfaceDim = Color(0xFFD4DED7)
 
-// ── Accent aliases (kept for source compatibility, mapped to the
-//    Warm Clinical Material accent roles) ─────────────────────────────
-val MdBlue = Color(0xFF006A6A)             // information → brand teal
-val MdBlueContainer = Color(0xFFE1F3F2)
-val MdPurple = MdTertiary                  // appointments → lavender
+// Accent aliases retained for compatibility with existing screens.
+val MdBlue = Color(0xFF397D9B)
+val MdBlueContainer = Color(0xFFE1F0F5)
+val MdPurple = MdTertiary
 val MdPurpleContainer = MdTertiaryFixed
-val MdCoral = Color(0xFFBA1A1A)            // alert coral
-val MdCoralContainer = Color(0xFFFFDAD6)
-val MdMint = MdSecondary                   // wellness → mint
-val MdMintContainer = MdSecondaryContainer
+val MdCoral = Color(0xFFFA7D61)
+val MdCoralContainer = Color(0xFFFFE8DB)
+val MdMint = Color(0xFF147D70)
+val MdMintContainer = Color(0xFFD1F0E0)
 
-// ── Semantic (used sparingly) ────────────────────────────────────────
-val MdSuccess = Color(0xFF006F66)          // mint-tinted affirmation ink
-val MdSuccessContainer = Color(0xFF81F3E5) // soft mint container
+// Semantic status colours.
+val MdSuccess = Color(0xFF147D70)
+val MdSuccessContainer = Color(0xFFD1F0E0)
 val MdOnSuccess = Color(0xFFFFFFFF)
 
-val MdWarning = Color(0xFF7C5800)          // warm amber ink
-val MdWarningContainer = Color(0xFFFFDEA3) // warm amber container
-val MdOnWarning = Color(0xFFFFFFFF)
+val MdWarning = Color(0xFF805A13)
+val MdWarningContainer = Color(0xFFFFEBA6)
+val MdOnWarning = Color(0xFF382600)
 
-val MdError = Color(0xFFBA1A1A)            // alert coral ink
-val MdErrorContainer = Color(0xFFFFDAD6)   // alert coral container
-val MdOnErrorContainer = Color(0xFF410002) // readable ink on coral container
+val MdError = Color(0xFFB84E3B)
+val MdErrorContainer = Color(0xFFFFE8DB)
+val MdOnErrorContainer = Color(0xFF512116)
 val MdOnError = Color(0xFFFFFFFF)
 
-// ── Elevation / stroke tokens ────────────────────────────────────────
-val Level1AmbientAlpha = 0.04f             // 0px 2px 8px rgba(25,28,28,0.04)
-val Level2AmbientAlpha = 0.12f             // 0px 6px 16px rgba(0,77,64,0.12)
-val OutlineTintAlpha = 0.08f               // 1px solid rgba(0,106,106,0.08)
+val Level1AmbientAlpha = 0.035f
+val Level2AmbientAlpha = 0.09f
+val OutlineTintAlpha = 0.06f
 
-// ── Dose status identifiers ──────────────────────────────────────────
 val DoseTakenGreen = MdSuccess
 val DoseSnoozeOrange = MdWarning
 val DoseSkipGray = MdOutlineStrong
 val DoseMissedRed = MdError
 
-// ── High contrast (accessibility) ────────────────────────────────────
 val HighContrastText = Color(0xFF000000)
-val HighContrastSecondaryText = Color(0xFF191C1C)
-val HighContrastOutline = Color(0xFF6E7979)
-val HighContrastPrimary = Color(0xFF004D40)
+val HighContrastSecondaryText = Color(0xFF1A2B33)
+val HighContrastOutline = Color(0xFF61757A)
+val HighContrastPrimary = Color(0xFF0E665D)
 
-// ── Legacy aliases (backward compatibility) ──────────────────────────
+// Legacy aliases — preserve all existing call sites.
 val MedicalPrimary = MdPrimary
 val MedicalPrimaryContainer = MdPrimaryContainer
 val MedicalOnPrimary = MdOnPrimary
