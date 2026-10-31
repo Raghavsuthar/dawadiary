@@ -41,13 +41,16 @@ class NotificationActionReceiver : BroadcastReceiver() {
                         val medName = intent.getStringExtra("medicine_name") ?: "Medication"
                         val doseDesc = intent.getStringExtra("dose_desc") ?: "Dose"
                         val profName = intent.getStringExtra("profile_name") ?: "Patient"
-                        db.doseLogDao().updateDoseStatus(
-                            doseId,
-                            "SNOOZED",
-                            System.currentTimeMillis(),
-                            "Snoozed from notification"
+                        val updatedRows = db.doseLogDao().updateDoseStatusConditional(
+                            id = doseId,
+                            expectedStatus = "PENDING",
+                            newStatus = "SNOOZED",
+                            actionTime = System.currentTimeMillis(),
+                            notes = "Snoozed from notification"
                         )
-                        ReminderManager.scheduleSnooze(context, doseId, medicineId, medName, doseDesc, profName)
+                        if (updatedRows > 0) {
+                            ReminderManager.scheduleSnooze(context, doseId, medicineId, medName, doseDesc, profName)
+                        }
                     }
                 }
             } finally {
