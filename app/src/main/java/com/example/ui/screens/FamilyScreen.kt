@@ -263,6 +263,22 @@ fun FamilyScreen(
                                 )
                             }
                         }
+
+                        IconButton(
+                            onClick = {
+                                editingProfile = profile
+                                showAddProfileDialog = true
+                            },
+                            modifier = Modifier
+                                .size(40.dp)
+                                .testTag("edit_profile_${profile.id}")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit ${profile.name}",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }
@@ -386,10 +402,14 @@ fun FamilyScreen(
     if (showAddProfileDialog) {
         AddEditProfileDialog(
             existing = editingProfile,
-            onDismiss = { showAddProfileDialog = false },
+            onDismiss = {
+                showAddProfileDialog = false
+                editingProfile = null
+            },
             onSave = { p ->
                 onSaveProfile(p)
                 showAddProfileDialog = false
+                editingProfile = null
             }
         )
     }
@@ -759,7 +779,8 @@ fun AddEditProfileDialog(
                                     chronicConditions = chronicConditions.trim(),
                                     emergencyContactName = emergencyContactName.trim(),
                                     emergencyContactPhone = emergencyContactPhone.trim(),
-                                    isSelf = existing?.isSelf ?: false
+                                    isSelf = existing?.isSelf ?: false,
+                                    createdAt = existing?.createdAt ?: System.currentTimeMillis()
                                 )
                             )
                         },
