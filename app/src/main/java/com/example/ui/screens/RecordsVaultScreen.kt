@@ -110,6 +110,46 @@ fun RecordsVaultScreen(
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        // Stitch-style health-vault introduction, with the real record count.
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 10.dp),
+            color = MdTertiaryFixed,
+            shape = RoundedCornerShape(22.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Your health story,",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MdOnSurface,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = "organized beautifully.",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MdPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "${records.size} secure record${if (records.size == 1) "" else "s"} · Stored in your encrypted vault",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MdOnSurfaceVariant,
+                    modifier = Modifier.padding(top = 6.dp, bottom = 12.dp)
+                )
+                MdPrimaryButton(
+                    onClick = { showAddDialog = true },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text(stringResource(R.string.add_record))
+                        }
+                    }
+                )
+            }
+        }
+
         // ΓöÇΓöÇ Search ΓöÇΓöÇ
         MdTextField(
             value = searchQuery,
