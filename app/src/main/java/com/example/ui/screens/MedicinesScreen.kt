@@ -72,6 +72,33 @@ fun MedicinesScreen(
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
+            color = Color(0xFFD1F0E0),
+            shape = RoundedCornerShape(22.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Your schedule, stock and reminders", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+                Text("A simple view of the medicines you are taking.", style = MaterialTheme.typography.bodySmall, color = Color(0xFF61757A), modifier = Modifier.padding(top = 4.dp))
+                Text(
+                    "TODAY · ${medicines.size} MEDICINES",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFF147D70),
+                    modifier = Modifier.padding(top = 12.dp).clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.72f)).padding(horizontal = 10.dp, vertical = 6.dp)
+                )
+            }
+        }
+        val lowStockCount = medicines.count { it.medicine.stockCount <= it.medicine.lowStockThreshold }
+        if (lowStockCount > 0) {
+            MdStatusBanner(
+                bgColor = Color(0xFFFFE8DB),
+                textColor = Color(0xFF8A493B),
+                icon = Icons.Default.Warning,
+                title = "Almost running low",
+                subtitle = "$lowStockCount medicine(s) need a refill soon",
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp)
+            )
+        }
         // ΓöÇΓöÇ Content ΓöÇΓöÇ
         if (medicines.isEmpty()) {
             MdEmptyState(
