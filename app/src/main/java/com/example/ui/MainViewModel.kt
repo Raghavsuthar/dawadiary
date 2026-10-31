@@ -234,15 +234,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // attachment fails, no incomplete record is committed.
                 for ((uri, originalName) in fileUris) {
                     val (encPath, size) = FileManager.saveEncryptedFile(getApplication(), uri, originalName)
-                    val mime = getApplication<Application>().contentResolver.getType(uri)
-                        ?: "application/octet-stream"
-                    encryptedFiles += RecordFileEntity(
-                        recordId = 0L,
-                        fileName = originalName,
-                        mimeType = mime,
-                        encryptedFilePath = encPath,
-                        fileSizeBytes = size
-                    )
+                    try {
+                        val mime = getApplication<Application>().contentResolver.getType(uri)
+                            ?: "application/octet-stream"
+                        encryptedFiles += RecordFileEntity(
+                            recordId = 0L,
+                            fileName = originalName,
+                            mimeType = mime,
+                            encryptedFilePath = encPath,
+                            fileSizeBytes = size
+                        )
+                    } catch (e: Exception) {
+                        FileManager.deleteEncryptedFile(encPath)
+                        throw e
+                    }
                 }
 
                 db.withTransaction {
