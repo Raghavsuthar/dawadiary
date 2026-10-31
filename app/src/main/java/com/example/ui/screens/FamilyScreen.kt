@@ -83,6 +83,23 @@ fun FamilyScreen(
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
+            color = Color(0xFFD1F0E0),
+            shape = RoundedCornerShape(22.dp)
+        ) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text("Better care,", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+                Text("together.", style = MaterialTheme.typography.titleLarge, color = Color(0xFF147D70))
+                Text("Manage medicines and records for everyone you care about.", style = MaterialTheme.typography.bodySmall, color = Color(0xFF61757A), modifier = Modifier.padding(top = 6.dp))
+            }
+        }
+        Text(
+            "Family members",
+            style = MaterialTheme.typography.titleLarge,
+            color = Color(0xFF1A2B33),
+            modifier = Modifier.padding(horizontal = 22.dp, vertical = 8.dp)
+        )
         // Active profile card
         Surface(
             modifier = Modifier

@@ -110,6 +110,49 @@ fun RecordsVaultScreen(
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
+            color = Color(0xFFE8E0FA),
+            shape = RoundedCornerShape(22.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("Your health story,", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+                Text("organized beautifully.", style = MaterialTheme.typography.titleLarge, color = Color(0xFF147D70))
+                Text("Reports · Prescriptions · Lab results", style = MaterialTheme.typography.bodySmall, color = Color(0xFF61757A), modifier = Modifier.padding(top = 6.dp))
+                Text(
+                    "+ ADD RECORD",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    modifier = Modifier.padding(top = 12.dp).clip(RoundedCornerShape(50)).background(Color(0xFF147D70)).clickable { showAddDialog = true }.padding(horizontal = 12.dp, vertical = 7.dp)
+                )
+            }
+        }
+        val recordCategories = listOf(
+            "LAB_REPORT" to "Lab reports",
+            "PRESCRIPTION" to "Prescriptions",
+            "DISCHARGE_SUMMARY" to "Health summaries",
+            "IMAGING" to "Scans & imaging"
+        )
+        Column(modifier = Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Browse categories", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+            recordCategories.chunked(2).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    row.forEach { (type, label) ->
+                        Surface(
+                            modifier = Modifier.weight(1f).clickable { selectedCategory = type },
+                            color = Color.White,
+                            shape = RoundedCornerShape(18.dp),
+                            shadowElevation = 1.dp
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(label, style = MaterialTheme.typography.titleSmall, color = Color(0xFF1A2B33))
+                                Text("${records.count { it.record.recordType.equals(type, ignoreCase = true) }} files", style = MaterialTheme.typography.labelSmall, color = Color(0xFF61757A), modifier = Modifier.padding(top = 5.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // ΓöÇΓöÇ Search ΓöÇΓöÇ
         MdTextField(
             value = searchQuery,
