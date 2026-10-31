@@ -203,7 +203,7 @@ fun DawaDiaryAppContent(
                 "records" -> RecordsVaultScreen(
                     activeProfile = activeProfile,
                     records = currentRecords,
-                    onSaveRecord = { rec, uris, tags -> viewModel.saveRecord(rec, uris, tags) },
+                    onSaveRecord = { rec, uris, tags, onResult -> viewModel.saveRecord(rec, uris, tags, onResult) },
                     onDeleteRecord = { recWithFiles -> viewModel.deleteRecord(recWithFiles) }
                 )
 
