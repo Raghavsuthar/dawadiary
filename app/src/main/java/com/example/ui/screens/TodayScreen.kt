@@ -42,179 +42,175 @@ fun TodayScreen(
 ) {
     val totalDoses = doses.size
     val takenDoses = doses.count { it.doseLog.status == "TAKEN" }
+    val pendingDoses = doses.count { it.doseLog.status == "PENDING" || it.doseLog.status == "SNOOZED" }
     val adherencePercent = if (totalDoses > 0) (takenDoses * 100) / totalDoses else 0
-    val allDone = totalDoses > 0 && takenDoses == totalDoses
-
     val lowStockMeds = activeMedicines.filter { it.medicine.stockCount <= it.medicine.lowStockThreshold }
+    val nextDose = doses.firstOrNull { it.doseLog.status == "PENDING" || it.doseLog.status == "SNOOZED" }
+    val dateLabel = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMM"))
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .testTag("today_screen_list")
-            .padding(bottom = 16.dp),
-        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier.fillMaxSize().testTag("today_screen_list"),
+        contentPadding = PaddingValues(start = 18.dp, top = 18.dp, end = 18.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // ΓöÇΓöÇ Greeting header (minimalist, no card border) ΓöÇΓöÇ
         item {
-            TodayHeader(
-                profile = activeProfile,
-                totalDoses = totalDoses,
-                takenDoses = takenDoses,
-                adherencePercent = adherencePercent
-            )
+            Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+                Text(
+                    text = "Good ${when (LocalTime.now().hour) { in 5..11 -> "morning"; in 12..16 -> "afternoon"; else -> "evening" }}, ${activeProfile?.name ?: "there"}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF1A2B33)
+                )
+                Text(
+                    text = "A little care, every day. · $dateLabel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF61757A),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
 
-        // ── Hero: adherence summary on brand gradient ──
-        if (totalDoses > 0) {
-            item {
-                val heroShape = RoundedCornerShape(28.dp)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .dawaCardShadow(8.dp, heroShape)
-                        .clip(heroShape)
-                        .background(BrandBrush)
+        item {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = Color(0xFFD1F0E0),
+                shape = RoundedCornerShape(24.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Your health,", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+                        Text("in good hands.", style = MaterialTheme.typography.titleLarge, color = Color(0xFF147D70), fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Small steps make a big difference.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF61757A),
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        Text(
+                            "TODAY'S CARE PLAN",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            modifier = Modifier
+                                .padding(top = 14.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(Color(0xFF147D70))
+                                .padding(horizontal = 12.dp, vertical = 7.dp)
+                        )
+                    }
                     Box(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .offset(x = 48.dp, y = (-48).dp)
-                            .size(160.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.08f))
-                    )
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .offset(x = (-36).dp, y = 36.dp)
-                            .size(110.dp)
-                            .clip(CircleShape)
-                            .background(BrandGlow.copy(alpha = 0.10f))
-                    )
-                    Row(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(18.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .size(76.dp)
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(Color(0xFFB8E7D2)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        MdProgressRing(
-                            progress = takenDoses.toFloat() / totalDoses,
-                            size = 92.dp,
-                            stroke = 9.dp,
-                            ringColor = Color.White,
-                            trackColor = Color.White.copy(alpha = 0.22f)
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = "$adherencePercent%",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Done",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White.copy(alpha = 0.85f)
-                                )
-                            }
-                        }
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "TODAY'S PROGRESS",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = if (allDone) "Every dose taken today!" else "You're doing wonderfully!",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                modifier = Modifier.padding(top = 2.dp)
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .padding(top = 10.dp)
-                                    .background(Color.White.copy(alpha = 0.16f), RoundedCornerShape(999.dp))
-                                    .padding(horizontal = 12.dp, vertical = 5.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (allDone) Icons.Default.Verified else Icons.Default.Schedule,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(15.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "$takenDoses of $totalDoses doses taken",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
-                                )
-                            }
-                        }
+                        Icon(Icons.Default.Favorite, contentDescription = null, tint = Color(0xFF147D70), modifier = Modifier.size(38.dp))
                     }
                 }
             }
         }
 
-        // ΓöÇΓöÇ Low stock alert (subtle banner) ΓöÇΓöÇ
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Today at a glance", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    StitchMetricTile(
+                        value = "$takenDoses / $totalDoses",
+                        label = "Doses taken",
+                        tint = Color(0xFFE8E0FA),
+                        modifier = Modifier.weight(1f)
+                    )
+                    StitchMetricTile(
+                        value = pendingDoses.toString(),
+                        label = "Upcoming",
+                        tint = Color(0xFFFFE8DB),
+                        modifier = Modifier.weight(1f)
+                    )
+                    StitchMetricTile(
+                        value = "$adherencePercent%",
+                        label = "Today's progress",
+                        tint = Color(0xFFFFEBA6),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+
         if (lowStockMeds.isNotEmpty()) {
             item {
                 MdStatusBanner(
-                    bgColor = MdWarningContainer,
-                    textColor = MdWarning,
+                    bgColor = Color(0xFFFFE8DB),
+                    textColor = Color(0xFF8A493B),
                     icon = Icons.Default.Warning,
-                    title = "Refill Alert",
-                    subtitle = lowStockMeds.joinToString(", ") { "${it.medicine.name} (${it.medicine.stockCount} left)" }
+                    title = "Almost running low",
+                    subtitle = lowStockMeds.joinToString(", ") { "${it.medicine.name} · ${it.medicine.stockCount} left" }
                 )
             }
         }
 
-        // ΓöÇΓöÇ All done celebration (subtle) ΓöÇΓöÇ
-        if (allDone) {
-            item {
-                MdStatusBanner(
-                    bgColor = MdSuccessContainer,
-                    textColor = MdSuccess,
-                    icon = Icons.Default.CheckCircle,
-                    title = "All Doses Taken Today",
-                    subtitle = stringResource(R.string.all_done_celebration)
-                )
-            }
-        }
-
-        // ΓöÇΓöÇ Schedule section ΓöÇΓöÇ
         item {
-            MdSection(
-                title = {
-                    Text(
-                        text = stringResource(R.string.today_schedule),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                action = {
-                    if (totalDoses > 0) {
-                        Text(
-                            text = "$takenDoses of $totalDoses Logged",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Coming up next", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+                if (nextDose != null) {
+                    val nextTime = Instant.ofEpochMilli(nextDose.doseLog.scheduledDateTime)
+                        .atZone(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("h:mm a"))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.White,
+                        shape = RoundedCornerShape(20.dp),
+                        shadowElevation = 1.dp
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("UP NEXT", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFA7D61), modifier = Modifier
+                                    .clip(RoundedCornerShape(50)).background(Color(0xFFFFE8DB)).padding(horizontal = 10.dp, vertical = 5.dp))
+                                Text(nextDose.medicine.name, style = MaterialTheme.typography.titleMedium, color = Color(0xFF1A2B33), modifier = Modifier.padding(top = 8.dp))
+                                Text("${nextDose.medicine.doseDescription} · ${nextDose.medicine.strength}", style = MaterialTheme.typography.bodySmall, color = Color(0xFF61757A))
+                            }
+                            Text(nextTime, style = MaterialTheme.typography.labelLarge, color = Color(0xFF147D70), modifier = Modifier
+                                .clip(RoundedCornerShape(50)).background(Color(0xFFD1F0E0)).padding(horizontal = 12.dp, vertical = 8.dp))
+                        }
                     }
-                },
-                padding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
-            )
-            MdDivider(modifier = Modifier.padding(horizontal = 0.dp))
+                } else {
+                    Text("No upcoming doses scheduled.", style = MaterialTheme.typography.bodyMedium, color = Color(0xFF61757A))
+                }
+            }
         }
 
-        // ΓöÇΓöÇ Empty / doses ΓöÇΓöÇ
+        item {
+            Surface(
+                onClick = onAddMedicineClick,
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.White,
+                shape = RoundedCornerShape(18.dp),
+                shadowElevation = 1.dp
+            ) {
+                Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier.size(42.dp).clip(RoundedCornerShape(13.dp)).background(Color(0xFFE8E0FA)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF147D70))
+                    }
+                    Column(modifier = Modifier.padding(start = 12.dp)) {
+                        Text("Add a health record or medicine", style = MaterialTheme.typography.titleSmall, color = Color(0xFF1A2B33))
+                        Text("Keep your care plan up to date", style = MaterialTheme.typography.bodySmall, color = Color(0xFF61757A))
+                    }
+                }
+            }
+        }
+
+        item {
+            Text("Today's full schedule", style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33))
+        }
+
         if (doses.isEmpty()) {
             item {
                 MdEmptyState(
@@ -222,24 +218,7 @@ fun TodayScreen(
                     title = "No Doses Scheduled for Today",
                     subtitle = stringResource(R.string.empty_today),
                     action = {
-                        MdPrimaryButton(
-                            onClick = onAddMedicineClick,
-                            label = {
-                                Row(
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(stringResource(R.string.add_medicine), fontWeight = FontWeight.SemiBold)
-                                }
-                            },
-                            fullWidth = true
-                        )
+                        MdPrimaryButton(onClick = onAddMedicineClick, label = { Text(stringResource(R.string.add_medicine), fontWeight = FontWeight.SemiBold) }, fullWidth = true)
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -253,6 +232,25 @@ fun TodayScreen(
                     onSkip = { onMarkSkip(doseWithMed.doseLog.id) }
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun StitchMetricTile(
+    value: String,
+    label: String,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.heightIn(min = 88.dp),
+        color = tint,
+        shape = RoundedCornerShape(18.dp)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 13.dp)) {
+            Text(value, style = MaterialTheme.typography.titleLarge, color = Color(0xFF1A2B33), fontWeight = FontWeight.Medium)
+            Text(label, style = MaterialTheme.typography.labelSmall, color = Color(0xFF61757A), modifier = Modifier.padding(top = 5.dp))
         }
     }
 }
