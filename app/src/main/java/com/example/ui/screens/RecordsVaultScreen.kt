@@ -288,7 +288,7 @@ fun RecordRow(
 
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
@@ -702,7 +702,7 @@ fun AddRecordDialog(
                                 )
                                 IconButton(
                                     onClick = { attachedUris.removeAt(index) },
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(48.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,

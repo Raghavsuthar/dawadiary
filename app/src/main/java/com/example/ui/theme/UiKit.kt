@@ -201,7 +201,7 @@ fun MdTextButton(
         onClick = onClick,
         enabled = enabled,
         shape = ButtonShape,
-        modifier = modifier
+        modifier = modifier.heightIn(min = 48.dp)
     ) {
         label()
     }

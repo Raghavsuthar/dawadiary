@@ -229,7 +229,7 @@ fun MedicineRow(
                 ) {
                     IconButton(
                         onClick = onEdit,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -240,7 +240,7 @@ fun MedicineRow(
                     }
                     IconButton(
                         onClick = onDelete,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.DeleteOutline,
@@ -563,5 +563,4 @@ fun AddEditMedicineDialog(
         }
     }
 }
-
 

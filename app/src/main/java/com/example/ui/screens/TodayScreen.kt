@@ -126,7 +126,7 @@ fun TodayScreen(
                                 text = "TODAY'S PROGRESS",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = BrandGlow
+                                color = Color.White
                             )
                             Text(
                                 text = if (allDone) "Every dose taken today!" else "You're doing wonderfully!",
@@ -150,8 +150,7 @@ fun TodayScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = if (allDone) "$takenDoses of $totalDoses taken"
-                                    else "$takenDoses of $totalDoses taken • ${totalDoses - takenDoses} left",
+                                    text = "$takenDoses of $totalDoses doses taken",
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = Color.White
@@ -501,4 +500,3 @@ fun DoseCard(
         } // Row (stripe + content)
     } // Surface (card)
 } // DoseCard
-
