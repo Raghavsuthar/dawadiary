@@ -72,6 +72,24 @@ fun MedicinesScreen(
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        // Stitch-inspired schedule summary: live count, never demo data.
+        Row(
+            modifier = Modifier
+                .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)
+                .background(MdPrimaryContainer, RoundedCornerShape(999.dp))
+                .padding(horizontal = 12.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Medication, contentDescription = null, tint = MdPrimary, modifier = Modifier.size(15.dp))
+            Spacer(Modifier.width(7.dp))
+            Text(
+                text = "${medicines.size} ACTIVE MEDICINE${if (medicines.size == 1) "" else "S"}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MdPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
         // ΓöÇΓöÇ Content ΓöÇΓöÇ
         if (medicines.isEmpty()) {
             MdEmptyState(
