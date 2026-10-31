@@ -93,6 +93,22 @@ class DataIntegrityTest {
         assertEquals(1, firstUpdate)
         assertEquals(0, repeatedUpdate)
         assertEquals("SNOOZED", db.doseLogDao().getDoseById(doseId)?.status)
+
+        for (terminalStatus in listOf("TAKEN", "SKIPPED")) {
+            val terminalDoseId = db.doseLogDao().insertDoseLog(
+                DoseLogEntity(
+                    profileId = profileId,
+                    medicineId = medicineId,
+                    scheduledDateTime = System.currentTimeMillis(),
+                    status = terminalStatus
+                )
+            )
+            val staleSnooze = db.doseLogDao().updateDoseStatusConditional(
+                terminalDoseId, "PENDING", "SNOOZED", System.currentTimeMillis(), "Stale snooze"
+            )
+            assertEquals(0, staleSnooze)
+            assertEquals(terminalStatus, db.doseLogDao().getDoseById(terminalDoseId)?.status)
+        }
     }
 
     @Test
