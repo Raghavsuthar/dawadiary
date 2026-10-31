@@ -40,6 +40,9 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug,O=Android,C=US"
 
+      - name: Run unit tests
+        run: bash ./gradlew testDebugUnitTest --no-daemon
+
       - name: Build APK
         run: bash ./gradlew assembleDebug --no-daemon
 
