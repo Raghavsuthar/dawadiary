@@ -221,34 +221,60 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun saveRecord(record: RecordEntity, fileUris: List<Pair<Uri, String>>, tags: List<String>) {
+    fun saveRecord(
+        record: RecordEntity,
+        fileUris: List<Pair<Uri, String>>,
+        tags: List<String>,
+        onResult: (Result<Unit>) -> Unit = {}
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val recordId = db.recordDao().insertRecord(record)
-            for ((uri, originalName) in fileUris) {
-                try {
+            val encryptedFiles = mutableListOf<RecordFileEntity>()
+            val result = try {
+                // Encrypt every attachment before creating the database record. If any
+                // attachment fails, no incomplete record is committed.
+                for ((uri, originalName) in fileUris) {
                     val (encPath, size) = FileManager.saveEncryptedFile(getApplication(), uri, originalName)
-                    val mime = getApplication<Application>().contentResolver.getType(uri) ?: "application/octet-stream"
-                    db.recordDao().insertRecordFile(
-                        RecordFileEntity(
-                            recordId = recordId,
+                    try {
+                        val mime = getApplication<Application>().contentResolver.getType(uri)
+                            ?: "application/octet-stream"
+                        encryptedFiles += RecordFileEntity(
+                            recordId = 0L,
                             fileName = originalName,
                             mimeType = mime,
                             encryptedFilePath = encPath,
                             fileSizeBytes = size
                         )
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                    } catch (e: Exception) {
+                        FileManager.deleteEncryptedFile(encPath)
+                        throw e
+                    }
                 }
-            }
 
-            for (tag in tags) {
-                val cleanTag = tag.trim()
-                if (cleanTag.isNotEmpty()) {
-                    val tagEntity = db.recordDao().getTagByName(cleanTag)
-                    val tagId = tagEntity?.id ?: db.recordDao().insertTag(TagEntity(name = cleanTag))
-                    db.recordDao().insertRecordTagCrossRef(RecordTagCrossRef(recordId, tagId))
+                db.withTransaction {
+                    val recordId = db.recordDao().insertRecord(record)
+                    encryptedFiles.forEach { file ->
+                        db.recordDao().insertRecordFile(file.copy(recordId = recordId))
+                    }
+                    for (tag in tags) {
+                        val cleanTag = tag.trim()
+                        if (cleanTag.isNotEmpty()) {
+                            val tagId = db.recordDao().getTagByName(cleanTag)?.id
+                                ?: db.recordDao().insertTag(TagEntity(name = cleanTag))
+                            if (tagId > 0L) {
+                                db.recordDao().insertRecordTagCrossRef(RecordTagCrossRef(recordId, tagId))
+                            }
+                        }
+                    }
                 }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                // Room and the filesystem cannot share a transaction; compensate by
+                // deleting any encrypted files if the database commit fails.
+                encryptedFiles.forEach { FileManager.deleteEncryptedFile(it.encryptedFilePath) }
+                Result.failure(e)
+            }
+            withContext(Dispatchers.Main) {
+                onResult(result)
             }
         }
     }

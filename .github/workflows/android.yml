@@ -45,8 +45,11 @@ jobs:
       - name: Run unit tests
         run: bash ./gradlew testDebugUnitTest --no-daemon
 
-      - name: Build APK
+      - name: Build debug APK
         run: bash ./gradlew assembleDebug --no-daemon
+
+      - name: Validate unsigned release build
+        run: bash ./gradlew assembleRelease --no-daemon
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

@@ -22,12 +22,22 @@ android {
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
+  val releaseStoreFile = System.getenv("DAWADIARY_RELEASE_STORE_FILE")
+  val releaseStorePassword = System.getenv("DAWADIARY_RELEASE_STORE_PASSWORD")
+  val releaseKeyAlias = System.getenv("DAWADIARY_RELEASE_KEY_ALIAS")
+  val releaseKeyPassword = System.getenv("DAWADIARY_RELEASE_KEY_PASSWORD")
+  val hasReleaseSigning = listOf(
+    releaseStoreFile, releaseStorePassword, releaseKeyAlias, releaseKeyPassword
+  ).all { !it.isNullOrBlank() }
+
   signingConfigs {
     create("release") {
-      storeFile = file("../debug.keystore")
-      storePassword = "android"
-      keyAlias = "androiddebugkey"
-      keyPassword = "android"
+      if (hasReleaseSigning) {
+        storeFile = file(releaseStoreFile!!)
+        storePassword = releaseStorePassword!!
+        keyAlias = releaseKeyAlias!!
+        keyPassword = releaseKeyPassword!!
+      }
     }
     create("debugConfig") {
       storeFile = file("../debug.keystore")
@@ -42,7 +52,9 @@ android {
       isCrunchPngs = false
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-      signingConfig = signingConfigs.getByName("release")
+      // Never sign a distributable release with the public Android debug key.
+      // Without all four private environment variables, Gradle produces an unsigned APK.
+      signingConfig = if (hasReleaseSigning) signingConfigs.getByName("release") else null
     }
     debug { signingConfig = signingConfigs.getByName("debugConfig") }
   }

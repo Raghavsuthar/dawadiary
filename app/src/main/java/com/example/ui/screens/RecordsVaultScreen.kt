@@ -50,9 +50,10 @@ import java.time.LocalDate
 fun RecordsVaultScreen(
     activeProfile: ProfileEntity?,
     records: List<RecordWithFiles>,
-    onSaveRecord: (RecordEntity, List<Pair<Uri, String>>, List<String>) -> Unit,
+    onSaveRecord: (RecordEntity, List<Pair<Uri, String>>, List<String>, (Result<Unit>) -> Unit) -> Unit,
     onDeleteRecord: (RecordWithFiles) -> Unit
 ) {
+    val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("ALL") }
     var showAddDialog by remember { mutableStateOf(false) }
@@ -184,9 +185,23 @@ fun RecordsVaultScreen(
         AddRecordDialog(
             activeProfileId = activeProfile?.id ?: 1L,
             onDismiss = { showAddDialog = false },
-            onSave = { record, uris, tags ->
-                onSaveRecord(record, uris, tags)
-                showAddDialog = false
+            onSave = { record, uris, tags, onResult ->
+                onSaveRecord(record, uris, tags) { result ->
+                    onResult(result)
+                    result.fold(
+                        onSuccess = {
+                            showAddDialog = false
+                            android.widget.Toast.makeText(context, "Record saved securely", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                        onFailure = { error ->
+                            android.widget.Toast.makeText(
+                                context,
+                                "Record not saved: ${error.localizedMessage ?: "Attachment processing failed"}",
+                                android.widget.Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    )
+                }
             }
         )
     }
@@ -391,7 +406,7 @@ fun RecordRow(
 fun AddRecordDialog(
     activeProfileId: Long,
     onDismiss: () -> Unit,
-    onSave: (RecordEntity, List<Pair<Uri, String>>, List<String>) -> Unit
+    onSave: (RecordEntity, List<Pair<Uri, String>>, List<String>, (Result<Unit>) -> Unit) -> Unit
 ) {
     val context = LocalContext.current
     var title by remember { mutableStateOf("") }
@@ -743,7 +758,7 @@ fun AddRecordDialog(
                                 notes = notes.trim()
                             )
                             val tagList = tagsInput.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                            onSave(record, attachedUris.toList(), tagList)
+                            onSave(record, attachedUris.toList(), tagList) { /* Parent reports save result and closes on success. */ }
                         },
                         label = { Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) },
                     )
