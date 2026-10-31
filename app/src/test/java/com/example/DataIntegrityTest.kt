@@ -37,6 +37,81 @@ class DataIntegrityTest {
     }
 
     @Test
+    fun `profile update edits existing row without creating duplicate`() = runBlocking {
+        val profileId = db.profileDao().insertProfile(
+            ProfileEntity(
+                name = "Patient D",
+                relationship = "Self",
+                dob = "1992-03-04",
+                gender = "Other",
+                bloodGroup = "O+"
+            )
+        )
+        val original = db.profileDao().getProfileById(profileId)!!
+        val updated = original.copy(name = "Updated Patient D", allergies = "Penicillin")
+
+        val affected = db.profileDao().updateProfile(updated)
+
+        assertEquals(1, affected)
+        assertEquals(1, db.profileDao().getAllProfiles().size)
+        assertEquals("Updated Patient D", db.profileDao().getProfileById(profileId)?.name)
+        assertEquals("Penicillin", db.profileDao().getProfileById(profileId)?.allergies)
+    }
+
+    @Test
+    fun `snooze only transitions pending dose and repeated action is ignored`() = runBlocking {
+        val profileId = db.profileDao().insertProfile(
+            ProfileEntity(name = "Patient E", relationship = "Self", dob = "1990-01-01", gender = "Other", bloodGroup = "A+")
+        )
+        val medicineId = db.medicineDao().insertMedicine(
+            MedicineEntity(
+                profileId = profileId,
+                name = "Medicine E",
+                strength = "10 mg",
+                form = "Tablet",
+                doseDescription = "1 tablet",
+                foodInstruction = "After food",
+                startDate = "2026-01-01"
+            )
+        )
+        val doseId = db.doseLogDao().insertDoseLog(
+            DoseLogEntity(
+                profileId = profileId,
+                medicineId = medicineId,
+                scheduledDateTime = System.currentTimeMillis(),
+                status = "PENDING"
+            )
+        )
+
+        val firstUpdate = db.doseLogDao().updateDoseStatusConditional(
+            doseId, "PENDING", "SNOOZED", System.currentTimeMillis(), "Snoozed"
+        )
+        val repeatedUpdate = db.doseLogDao().updateDoseStatusConditional(
+            doseId, "PENDING", "SNOOZED", System.currentTimeMillis(), "Snoozed again"
+        )
+
+        assertEquals(1, firstUpdate)
+        assertEquals(0, repeatedUpdate)
+        assertEquals("SNOOZED", db.doseLogDao().getDoseById(doseId)?.status)
+
+        for (terminalStatus in listOf("TAKEN", "SKIPPED")) {
+            val terminalDoseId = db.doseLogDao().insertDoseLog(
+                DoseLogEntity(
+                    profileId = profileId,
+                    medicineId = medicineId,
+                    scheduledDateTime = System.currentTimeMillis(),
+                    status = terminalStatus
+                )
+            )
+            val staleSnooze = db.doseLogDao().updateDoseStatusConditional(
+                terminalDoseId, "PENDING", "SNOOZED", System.currentTimeMillis(), "Stale snooze"
+            )
+            assertEquals(0, staleSnooze)
+            assertEquals(terminalStatus, db.doseLogDao().getDoseById(terminalDoseId)?.status)
+        }
+    }
+
+    @Test
     fun `medicine update does not delete schedule or dose logs`() = runBlocking {
         val profId = db.profileDao().insertProfile(
             ProfileEntity(name = "Patient A", relationship = "Self", dob = "1990-01-01", gender = "Male", bloodGroup = "O+")

@@ -120,20 +120,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markDoseSnoozed(doseWithMedicine: DoseWithMedicine) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.doseLogDao().updateDoseStatus(
-                doseWithMedicine.doseLog.id,
-                "SNOOZED",
-                System.currentTimeMillis(),
-                "Snoozed for 10 minutes"
+            val updatedRows = db.doseLogDao().updateDoseStatusConditional(
+                id = doseWithMedicine.doseLog.id,
+                expectedStatus = "PENDING",
+                newStatus = "SNOOZED",
+                actionTime = System.currentTimeMillis(),
+                notes = "Snoozed for 10 minutes"
             )
-            ReminderManager.scheduleSnooze(
-                context = getApplication(),
-                doseId = doseWithMedicine.doseLog.id,
-                medicineId = doseWithMedicine.medicine.id,
-                medicineName = doseWithMedicine.medicine.name,
-                doseDesc = doseWithMedicine.medicine.doseDescription,
-                profileName = doseWithMedicine.profile.name
-            )
+            if (updatedRows > 0) {
+                ReminderManager.scheduleSnooze(
+                    context = getApplication(),
+                    doseId = doseWithMedicine.doseLog.id,
+                    medicineId = doseWithMedicine.medicine.id,
+                    medicineName = doseWithMedicine.medicine.name,
+                    doseDesc = doseWithMedicine.medicine.doseDescription,
+                    profileName = doseWithMedicine.profile.name
+                )
+                refreshDoses()
+            }
         }
     }
 
@@ -152,9 +156,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun saveProfile(profile: ProfileEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            val id = db.profileDao().insertProfile(profile)
-            if (securityPrefs.getActiveProfileId() == -1L) {
-                securityPrefs.setActiveProfileId(id)
+            if (profile.id == 0L) {
+                val id = db.profileDao().insertProfile(profile)
+                if (securityPrefs.getActiveProfileId() == -1L) {
+                    securityPrefs.setActiveProfileId(id)
+                }
+            } else {
+                db.profileDao().updateProfile(profile)
             }
         }
     }
