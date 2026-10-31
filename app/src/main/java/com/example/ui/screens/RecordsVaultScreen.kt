@@ -185,8 +185,9 @@ fun RecordsVaultScreen(
         AddRecordDialog(
             activeProfileId = activeProfile?.id ?: 1L,
             onDismiss = { showAddDialog = false },
-            onSave = { record, uris, tags ->
+            onSave = { record, uris, tags, onResult ->
                 onSaveRecord(record, uris, tags) { result ->
+                    onResult(result)
                     result.fold(
                         onSuccess = {
                             showAddDialog = false
