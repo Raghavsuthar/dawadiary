@@ -83,6 +83,36 @@ fun FamilyScreen(
         }
         MdDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        // Stitch-inspired family-care banner; member details remain data-driven below.
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 10.dp),
+            color = MdPrimaryContainer,
+            shape = RoundedCornerShape(22.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Better care,",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MdOnSurface,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = "together.",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MdPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Manage health details and care routines for the people who matter.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MdOnSurfaceVariant,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+        }
+
         // Active profile card
         Surface(
             modifier = Modifier
