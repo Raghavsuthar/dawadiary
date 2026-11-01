@@ -18,6 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,6 +65,19 @@ fun SettingsScreen(
     var selectedRestoreUri by remember { mutableStateOf<Uri?>(null) }
     var lastBackupResult by remember { mutableStateOf<BackupResult?>(null) }
     var canScheduleExact by remember { mutableStateOf(ReminderManager.canScheduleExactAlarms(context)) }
+
+    // The user returns here after Android's special-access screen; refresh the real
+    // permission state instead of leaving a stale "Restricted" or "Allowed" label.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                canScheduleExact = ReminderManager.canScheduleExactAlarms(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     val createBackupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream")
@@ -274,7 +290,7 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = if (canScheduleExact) "Doses will trigger at the exact minute even when screen is off."
-                                else "Android may delay notifications. Tap below to enable exact alarms.",
+                                else "Reminders still use a fallback alarm, but Android may deliver it late. Allow exact alarms for more reliable timing.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -290,7 +306,7 @@ fun SettingsScreen(
                                     } catch (ignored: Exception) {}
                                 }
                             ) {
-                                Text("Allow")
+                                Text("Open settings")
                             }
                         }
                     }
