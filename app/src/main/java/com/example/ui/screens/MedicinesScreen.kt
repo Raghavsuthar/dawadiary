@@ -50,7 +50,6 @@ fun MedicinesScreen(
             .fillMaxSize()
             .padding(bottom = 16.dp)
             .testTag("medicines_screen")
-            .verticalScroll(rememberScrollState())
     ) {
         // ΓöÇΓöÇ Header ΓöÇΓöÇ
         Column(
@@ -119,7 +118,7 @@ fun MedicinesScreen(
             )
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
