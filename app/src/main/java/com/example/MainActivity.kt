@@ -15,6 +15,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -85,7 +86,7 @@ class MainActivity : FragmentActivity() {
 
             val currentDensity = LocalDensity.current
             val customDensity = remember(currentDensity, fontScale) {
-                Density(currentDensity.density, fontScale)
+                Density(currentDensity.density, currentDensity.fontScale * fontScale)
             }
 
             CompositionLocalProvider(LocalDensity provides customDensity) {
@@ -154,7 +155,7 @@ fun DawaDiaryAppContent(
     viewModel: MainViewModel,
     onRequestBiometric: () -> Unit
 ) {
-    var currentTab by remember { mutableStateOf("today") }
+    var currentTab by rememberSaveable { mutableStateOf("today") }
     var showEmergencyDialog by remember { mutableStateOf(false) }
 
     val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
@@ -187,7 +188,7 @@ fun DawaDiaryAppContent(
                     activeProfile = activeProfile,
                     doses = todayDoses,
                     activeMedicines = currentMedicines,
-                    onMarkTaken = { doseId, medId -> viewModel.markDoseTaken(doseId, medId) },
+                    onMarkTaken = { doseId, _ -> viewModel.markDoseTaken(doseId) },
                     onMarkSnooze = { doseWithMed -> viewModel.markDoseSnoozed(doseWithMed) },
                     onMarkSkip = { doseId -> viewModel.markDoseSkipped(doseId) },
                     onAddMedicineClick = { currentTab = "medicines" }

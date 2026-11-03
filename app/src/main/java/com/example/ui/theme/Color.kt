@@ -11,8 +11,8 @@ val MdOnPrimary = Color(0xFFFFFFFF)
 val MdOnPrimaryContainer = Color(0xFF123B37)
 
 val BrandGradientStart = Color(0xFF147D70)
-val BrandGradientMid = Color(0xFF23998A)
-val BrandGradientEnd = Color(0xFF57B9A4)
+val BrandGradientMid = Color(0xFF136F65)
+val BrandGradientEnd = Color(0xFF12695F)
 val BrandGlow = Color(0xFFB8E8D7)
 val CardShadowTint = Color(0xFF315E56)
 

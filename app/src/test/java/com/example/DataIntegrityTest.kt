@@ -2,6 +2,7 @@ package com.example
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import com.example.data.AppDatabase
 import com.example.data.entity.DoseLogEntity
@@ -112,6 +113,49 @@ class DataIntegrityTest {
     }
 
     @Test
+    fun `snoozed dose can be taken and repeated terminal actions are ignored`() = runBlocking {
+        val profileId = db.profileDao().insertProfile(
+            ProfileEntity(name = "Patient Snooze", relationship = "Self", dob = "1990-01-01", gender = "Other", bloodGroup = "A+")
+        )
+        val medicineId = db.medicineDao().insertMedicine(
+            MedicineEntity(
+                profileId = profileId,
+                name = "Medicine Snooze",
+                strength = "10 mg",
+                form = "Tablet",
+                doseDescription = "1 tablet",
+                foodInstruction = "After food",
+                startDate = "2026-01-01",
+                stockCount = 2
+            )
+        )
+        val doseId = db.doseLogDao().insertDoseLog(
+            DoseLogEntity(
+                profileId = profileId,
+                medicineId = medicineId,
+                scheduledDateTime = System.currentTimeMillis(),
+                status = "SNOOZED"
+            )
+        )
+
+        val firstTake = db.withTransaction {
+            val updated = db.doseLogDao().updateActiveDoseStatus(
+                doseId, "TAKEN", System.currentTimeMillis(), "Taken after snooze"
+            )
+            if (updated > 0) db.medicineDao().decrementStock(medicineId, 1)
+            updated
+        }
+        val staleSkip = db.doseLogDao().updateActiveDoseStatus(
+            doseId, "SKIPPED", System.currentTimeMillis(), "Stale action"
+        )
+
+        assertEquals(1, firstTake)
+        assertEquals(0, staleSkip)
+        assertEquals("TAKEN", db.doseLogDao().getDoseById(doseId)?.status)
+        assertEquals(1, db.medicineDao().getMedicineById(medicineId)?.stockCount)
+    }
+
+    @Test
     fun `medicine update does not delete schedule or dose logs`() = runBlocking {
         val profId = db.profileDao().insertProfile(
             ProfileEntity(name = "Patient A", relationship = "Self", dob = "1990-01-01", gender = "Male", bloodGroup = "O+")
@@ -157,6 +201,38 @@ class DataIntegrityTest {
 
         val dose = db.doseLogDao().getDoseById(doseId)
         assertEquals("PENDING", dose?.status)
+    }
+
+    @Test
+    fun `schedule cancellation removes active doses but preserves completed history`() = runBlocking {
+        val profileId = db.profileDao().insertProfile(
+            ProfileEntity(name = "Patient Schedule", relationship = "Self", dob = "1991-01-01", gender = "Other", bloodGroup = "O+")
+        )
+        val medicineId = db.medicineDao().insertMedicine(
+            MedicineEntity(
+                profileId = profileId,
+                name = "Medicine Schedule",
+                strength = "5 mg",
+                form = "Tablet",
+                doseDescription = "1 tablet",
+                foodInstruction = "Anytime",
+                startDate = "2026-01-01"
+            )
+        )
+        listOf("PENDING", "SNOOZED", "TAKEN").forEachIndexed { index, status ->
+            db.doseLogDao().insertDoseLog(
+                DoseLogEntity(
+                    profileId = profileId,
+                    medicineId = medicineId,
+                    scheduledDateTime = System.currentTimeMillis() + index,
+                    status = status
+                )
+            )
+        }
+
+        db.doseLogDao().cancelPendingDosesForMedicine(medicineId)
+
+        assertEquals(listOf("TAKEN"), db.doseLogDao().getDosesForMedicine(medicineId).map { it.status })
     }
 
     @Test

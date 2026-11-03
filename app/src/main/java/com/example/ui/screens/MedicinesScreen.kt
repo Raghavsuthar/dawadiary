@@ -3,8 +3,6 @@ package com.example.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +28,7 @@ import com.example.data.dao.MedicineWithSchedule
 import com.example.data.entity.MedicineEntity
 import com.example.data.entity.ProfileEntity
 import com.example.data.entity.ScheduleEntity
+import com.example.util.ScheduleTimeUtils
 import com.example.ui.theme.*
 import java.time.LocalDate
 
@@ -118,12 +117,11 @@ fun MedicinesScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(medicines, key = { it.medicine.id }) { medWithSched ->
+                medicines.forEach { medWithSched ->
                     MedicineRow(
                         medWithSched = medWithSched,
                         onEdit = {
@@ -350,6 +348,8 @@ fun AddEditMedicineDialog(
 
     var scheduleType by remember { mutableStateOf(existing?.schedules?.firstOrNull()?.scheduleType ?: "DAILY") }
     var timesOfDay by remember { mutableStateOf(existing?.schedules?.firstOrNull()?.timesOfDay ?: "08:00,20:00") }
+    var scheduleTimeError by remember { mutableStateOf<String?>(null) }
+    val invalidScheduleTimeMessage = stringResource(R.string.invalid_schedule_time)
 
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -484,9 +484,14 @@ fun AddEditMedicineDialog(
 
                 MdTextField(
                     value = timesOfDay,
-                    onValueChange = { timesOfDay = it },
+                    onValueChange = {
+                        timesOfDay = it
+                        scheduleTimeError = null
+                    },
                     label = "Reminder Times (24h, comma separated)",
                     placeholder = "08:00, 14:00, 20:00",
+                    isError = scheduleTimeError != null,
+                    errorMessage = scheduleTimeError,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -557,19 +562,17 @@ fun AddEditMedicineDialog(
                                 stockCount = stock,
                                 lowStockThreshold = threshold
                             )
-                            val cleanTimes = timesOfDay.split(",")
-                                .map { it.trim() }
-                                .filter { it.matches(Regex("\\d{1,2}:\\d{2}")) }
-                                .joinToString(",") {
-                                    val parts = it.split(":")
-                                    "%02d:%02d".format(parts[0].toInt(), parts[1].toInt())
-                                }
+                            val cleanTimes = ScheduleTimeUtils.normalize(timesOfDay)
+                            if (cleanTimes == null) {
+                                scheduleTimeError = invalidScheduleTimeMessage
+                                return@MdPrimaryButton
+                            }
 
                             val sched = ScheduleEntity(
                                 id = existing?.schedules?.firstOrNull()?.id ?: 0L,
                                 medicineId = existing?.medicine?.id ?: 0L,
                                 scheduleType = scheduleType,
-                                timesOfDay = if (cleanTimes.isNotEmpty()) cleanTimes else "08:00"
+                                timesOfDay = cleanTimes
                             )
                             onSave(med, sched)
                         },
@@ -581,4 +584,3 @@ fun AddEditMedicineDialog(
         }
     }
 }
-

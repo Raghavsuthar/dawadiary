@@ -67,7 +67,7 @@ object FileManager {
     fun wipeAllEncryptedFiles(context: Context) {
         val recordsDir = getRecordsDir(context)
         recordsDir.listFiles()?.forEach { it.delete() }
-        cleanCacheDir(context)
+        getCacheImagesDir(context).listFiles()?.forEach { it.deleteRecursively() }
     }
 
     fun cleanCacheDir(context: Context) {

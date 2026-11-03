@@ -62,6 +62,7 @@
     <string name="reminder_times">अनुस्मारक समय</string>
     <string name="add_time">समय जोड़ें</string>
     <string name="interval_days_label">दिनों का अंतराल</string>
+    <string name="invalid_schedule_time">24-घंटे के सही समय दर्ज करें, जैसे 08:00 या 23:59।</string>
 
     <!-- Dose Actions & Status -->
     <string name="action_take">ले ली</string>
@@ -118,6 +119,9 @@
     <string name="doctor_name">डॉक्टर का नाम</string>
     <string name="clinic_location">क्लिनिक / अस्पताल का पता</string>
     <string name="appointment_datetime">तारीख और समय</string>
+    <string name="appointment_date">अपॉइंटमेंट की तारीख</string>
+    <string name="appointment_time">अपॉइंटमेंट का समय</string>
+    <string name="appointment_future_error">भविष्य की तारीख और समय चुनें।</string>
     <string name="upcoming_appointments">आगामी अपॉइंटमेंट्स</string>
 
     <!-- Emergency Card -->
@@ -168,4 +172,5 @@
     <string name="empty_records">कोई स्वास्थ्य रिकॉर्ड नहीं मिला।</string>
     <string name="empty_medicines">कोई दवा पंजीकृत नहीं है।</string>
     <string name="all_done_celebration">बहुत बढ़िया! आज की सभी दवाइयां समय पर ले ली गई हैं।</string>
+    <string name="sos_card">एसओएस कार्ड</string>
 </resources>

@@ -26,14 +26,14 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 when (action) {
                     "ACTION_TAKE" -> {
                         db.withTransaction {
-                            val rows = db.doseLogDao().updateDoseStatusConditional(
+                            val dose = db.doseLogDao().getDoseById(doseId) ?: return@withTransaction
+                            val rows = db.doseLogDao().updateActiveDoseStatus(
                                 id = doseId,
-                                expectedStatus = "PENDING",
                                 newStatus = "TAKEN",
                                 actionTime = System.currentTimeMillis()
                             )
                             if (rows > 0) {
-                                db.medicineDao().decrementStock(medicineId, 1)
+                                db.medicineDao().decrementStock(dose.medicineId, 1)
                             }
                         }
                     }
@@ -41,9 +41,8 @@ class NotificationActionReceiver : BroadcastReceiver() {
                         val medName = intent.getStringExtra("medicine_name") ?: "Medication"
                         val doseDesc = intent.getStringExtra("dose_desc") ?: "Dose"
                         val profName = intent.getStringExtra("profile_name") ?: "Patient"
-                        val updatedRows = db.doseLogDao().updateDoseStatusConditional(
+                        val updatedRows = db.doseLogDao().updateActiveDoseStatus(
                             id = doseId,
-                            expectedStatus = "PENDING",
                             newStatus = "SNOOZED",
                             actionTime = System.currentTimeMillis(),
                             notes = "Snoozed from notification"

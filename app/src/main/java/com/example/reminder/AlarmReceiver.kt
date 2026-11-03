@@ -26,7 +26,7 @@ class AlarmReceiver : BroadcastReceiver() {
             try {
                 val db = AppDatabase.getInstance(context)
                 val dose = db.doseLogDao().getDoseById(doseId)
-                if (dose == null || dose.status != "PENDING") {
+                if (dose == null || dose.status !in setOf("PENDING", "SNOOZED")) {
                     // Dose is already taken, skipped, or cancelled
                     return@launch
                 }
@@ -104,6 +104,8 @@ class AlarmReceiver : BroadcastReceiver() {
 
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.notify((ReminderManager.NOTIFICATION_ID_PREFIX + doseId).toInt(), notification)
+                // Refill the rolling reminder horizon even when the user has not opened the app.
+                ReminderManager.syncAndScheduleAlarms(context)
             } finally {
                 pendingResult.finish()
             }
