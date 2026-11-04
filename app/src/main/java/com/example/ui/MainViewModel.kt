@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
+import androidx.room.withTransaction
 import com.example.DawaDiaryApp
 import com.example.data.AppDatabase
 import com.example.data.dao.DoseWithMedicine
@@ -101,17 +102,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         securityPrefs.setActiveProfileId(id)
     }
 
-    fun markDoseTaken(doseId: Long, medicineId: Long) {
+    fun markDoseTaken(doseId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             db.withTransaction {
-                val affected = db.doseLogDao().updateDoseStatusConditional(
+                val dose = db.doseLogDao().getDoseById(doseId) ?: return@withTransaction
+                val affected = db.doseLogDao().updateActiveDoseStatus(
                     id = doseId,
-                    expectedStatus = "PENDING",
                     newStatus = "TAKEN",
                     actionTime = System.currentTimeMillis()
                 )
                 if (affected > 0) {
-                    db.medicineDao().decrementStock(medicineId, 1)
+                    db.medicineDao().decrementStock(dose.medicineId, 1)
                 }
             }
             refreshDoses()
@@ -120,9 +121,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markDoseSnoozed(doseWithMedicine: DoseWithMedicine) {
         viewModelScope.launch(Dispatchers.IO) {
-            val updatedRows = db.doseLogDao().updateDoseStatusConditional(
+            val updatedRows = db.doseLogDao().updateActiveDoseStatus(
                 id = doseWithMedicine.doseLog.id,
-                expectedStatus = "PENDING",
                 newStatus = "SNOOZED",
                 actionTime = System.currentTimeMillis(),
                 notes = "Snoozed for 10 minutes"
@@ -143,9 +143,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun markDoseSkipped(doseId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.doseLogDao().updateDoseStatusConditional(
+            db.doseLogDao().updateActiveDoseStatus(
                 id = doseId,
-                expectedStatus = "PENDING",
                 newStatus = "SKIPPED",
                 actionTime = System.currentTimeMillis(),
                 notes = "Skipped by patient"
@@ -188,22 +187,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun saveMedicine(medicine: MedicineEntity, schedule: ScheduleEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.withTransaction {
-                val medId = if (medicine.id == 0L) {
-                    val newId = db.medicineDao().insertMedicine(medicine)
-                    db.scheduleDao().insertSchedule(schedule.copy(medicineId = newId))
-                    newId
-                } else {
-                    db.medicineDao().updateMedicine(medicine)
-                    val existing = db.scheduleDao().getAllSchedulesForMedicine(medicine.id)
-                    if (existing.isNotEmpty()) {
-                        db.scheduleDao().updateSchedule(
-                            schedule.copy(id = existing.first().id, medicineId = medicine.id)
-                        )
-                    } else {
-                        db.scheduleDao().insertSchedule(schedule.copy(medicineId = medicine.id))
+            ReminderManager.withScheduleSyncLock {
+                if (medicine.id != 0L) {
+                    ReminderManager.cancelAlarmsForMedicine(getApplication(), medicine.id)
+                }
+                db.withTransaction {
+                    if (medicine.id != 0L) {
+                        db.doseLogDao().cancelPendingDosesForMedicine(medicine.id)
                     }
-                    medicine.id
+                    if (medicine.id == 0L) {
+                        val newId = db.medicineDao().insertMedicine(medicine)
+                        db.scheduleDao().insertSchedule(schedule.copy(medicineId = newId))
+                    } else {
+                        db.medicineDao().updateMedicine(medicine)
+                        val existing = db.scheduleDao().getAllSchedulesForMedicine(medicine.id)
+                        if (existing.isNotEmpty()) {
+                            db.scheduleDao().updateSchedule(
+                                schedule.copy(id = existing.first().id, medicineId = medicine.id)
+                            )
+                        } else {
+                            db.scheduleDao().insertSchedule(schedule.copy(medicineId = medicine.id))
+                        }
+                    }
                 }
             }
             refreshDoses()
@@ -212,11 +217,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteMedicine(medicine: MedicineEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.withTransaction {
-                db.medicineDao().archiveMedicine(medicine.id)
-                db.doseLogDao().cancelPendingDosesForMedicine(medicine.id)
+            ReminderManager.withScheduleSyncLock {
+                db.withTransaction {
+                    db.medicineDao().archiveMedicine(medicine.id)
+                    db.doseLogDao().cancelPendingDosesForMedicine(medicine.id)
+                }
+                ReminderManager.cancelAlarmsForMedicine(getApplication(), medicine.id)
             }
-            ReminderManager.cancelAlarmsForMedicine(getApplication(), medicine.id)
             refreshDoses()
         }
     }
@@ -375,7 +382,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun eraseAllData(onComplete: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             FileManager.wipeAllEncryptedFiles(getApplication())
-            db.profileDao().deleteAllProfiles()
+            db.withTransaction {
+                db.profileDao().deleteAllProfiles()
+                db.recordDao().deleteAllTags()
+            }
             securityPrefs.clearAllData()
             _isConsentAccepted.value = false
             _isDisclaimerAccepted.value = false

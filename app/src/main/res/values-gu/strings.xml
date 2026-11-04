@@ -62,6 +62,7 @@
     <string name="reminder_times">રિમાઇન્ડર સમય</string>
     <string name="add_time">સમય ઉમેરો</string>
     <string name="interval_days_label">દિવસોનો અંતરાલ</string>
+    <string name="invalid_schedule_time">24-કલાકનો માન્ય સમય દાખલ કરો, જેમ કે 08:00 અથવા 23:59.</string>
 
     <!-- Dose Actions & Status -->
     <string name="action_take">લીધી</string>
@@ -118,6 +119,9 @@
     <string name="doctor_name">ડૉક્ટરનું નામ</string>
     <string name="clinic_location">ક્લિનિક / હૉસ્પિટલ સરનામું</string>
     <string name="appointment_datetime">તારીખ અને સમય</string>
+    <string name="appointment_date">અપોઇન્ટમેન્ટની તારીખ</string>
+    <string name="appointment_time">અપોઇન્ટમેન્ટનો સમય</string>
+    <string name="appointment_future_error">ભવિષ્યની તારીખ અને સમય પસંદ કરો.</string>
     <string name="upcoming_appointments">આગામી એપોઇન્ટમેન્ટ્સ</string>
 
     <!-- Emergency Card -->
@@ -168,4 +172,5 @@
     <string name="empty_records">કોઈ આરોગ્ય રેકોર્ડ મળ્યો નથી.</string>
     <string name="empty_medicines">કોઈ દવા નોંધાયેલ નથી.</string>
     <string name="all_done_celebration">શાબાશ! આજના બધા નિર્ધારિત ડોઝ સમયસર લેવાઈ ગયા છે.</string>
+    <string name="sos_card">SOS કાર્ડ</string>
 </resources>

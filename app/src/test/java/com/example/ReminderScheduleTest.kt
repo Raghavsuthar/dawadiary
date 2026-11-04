@@ -2,12 +2,36 @@ package com.example
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Test
+import com.example.reminder.ReminderSchedulePlanner
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 class ReminderScheduleTest {
+
+    @Test
+    fun `planner includes today and the next seven days`() {
+        val today = LocalDate.of(2026, 1, 1)
+        val dates = ReminderSchedulePlanner.planningDates(today)
+
+        assertEquals(8, dates.size)
+        assertEquals(today, dates.first())
+        assertEquals(today.plusDays(7), dates.last())
+    }
+
+    @Test
+    fun `planner applies weekday interval and as-needed rules`() {
+        val start = LocalDate.of(2026, 1, 1)
+        val monday = LocalDate.of(2026, 1, 5)
+        val mondayWednesdayMask = 1 or (1 shl 2)
+
+        assertTrue(ReminderSchedulePlanner.appliesOnDate("SPECIFIC_DAYS", monday, start, mondayWednesdayMask))
+        assertTrue(ReminderSchedulePlanner.appliesOnDate("INTERVAL", start.plusDays(3), start, intervalDays = 3))
+        assertFalse(ReminderSchedulePlanner.appliesOnDate("INTERVAL", start.plusDays(2), start, intervalDays = 3))
+        assertFalse(ReminderSchedulePlanner.appliesOnDate("AS_NEEDED", start, start))
+    }
 
     @Test
     fun `specific days bitmask correctly matches target weekday`() {

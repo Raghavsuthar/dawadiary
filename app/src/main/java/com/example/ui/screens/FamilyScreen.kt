@@ -1,10 +1,11 @@
 package com.example.ui.screens
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,6 +35,8 @@ import com.example.data.entity.VitalEntity
 import com.example.ui.components.EmergencyCardDialog
 import com.example.ui.theme.*
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -356,12 +360,11 @@ fun FamilyScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(start = 16.dp, top = 4.dp, end = 16.dp),
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp, end = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(vitals.take(6), key = { it.id }) { vital ->
+                vitals.take(6).forEach { vital ->
                     VitalRow(vital = vital)
                 }
             }
@@ -409,12 +412,11 @@ fun FamilyScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(start = 16.dp, top = 4.dp, end = 16.dp),
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp, end = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(appointments, key = { it.id }) { appt ->
+                appointments.forEach { appt ->
                     AppointmentRow(appointment = appt)
                 }
             }
@@ -982,11 +984,16 @@ fun AddAppointmentDialog(
     onDismiss: () -> Unit,
     onSave: (AppointmentEntity) -> Unit
 ) {
+    val context = LocalContext.current
+    val futureAppointmentError = stringResource(R.string.appointment_future_error)
     var doctor by remember { mutableStateOf("") }
     var specialty by remember { mutableStateOf("Physician") }
     var location by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var doctorError by remember { mutableStateOf<String?>(null) }
+    var appointmentDate by remember { mutableStateOf(LocalDate.now().plusDays(1)) }
+    var appointmentTime by remember { mutableStateOf(LocalTime.of(9, 0)) }
+    var appointmentTimeError by remember { mutableStateOf<String?>(null) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -1053,6 +1060,45 @@ fun AddAppointmentDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                OutlinedButton(
+                    onClick = {
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, day ->
+                                appointmentDate = LocalDate.of(year, month + 1, day)
+                                appointmentTimeError = null
+                            },
+                            appointmentDate.year,
+                            appointmentDate.monthValue - 1,
+                            appointmentDate.dayOfMonth
+                        ).show()
+                    },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                ) {
+                    Text("${stringResource(R.string.appointment_date)}: ${appointmentDate.format(DateTimeFormatter.ofPattern("EEE, d MMM yyyy"))}")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        TimePickerDialog(
+                            context,
+                            { _, hour, minute ->
+                                appointmentTime = LocalTime.of(hour, minute)
+                                appointmentTimeError = null
+                            },
+                            appointmentTime.hour,
+                            appointmentTime.minute,
+                            android.text.format.DateFormat.is24HourFormat(context)
+                        ).show()
+                    },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                ) {
+                    Text("${stringResource(R.string.appointment_time)}: ${appointmentTime.format(DateTimeFormatter.ofPattern("HH:mm"))}")
+                }
+                if (appointmentTimeError != null) {
+                    Text(appointmentTimeError.orEmpty(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+
                 MdTextField(
                     value = notes,
                     onValueChange = { notes = it },
@@ -1081,13 +1127,21 @@ fun AddAppointmentDialog(
                                 doctorError = "Doctor name is required"
                                 return@MdPrimaryButton
                             }
+                            val appointmentDateTime = appointmentDate.atTime(appointmentTime)
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                            if (appointmentDateTime <= System.currentTimeMillis()) {
+                                appointmentTimeError = futureAppointmentError
+                                return@MdPrimaryButton
+                            }
                             onSave(
                                 AppointmentEntity(
                                     profileId = profileId,
                                     doctorName = doctor.trim(),
                                     specialty = specialty.trim(),
                                     clinicHospital = location.trim(),
-                                    appointmentDateTime = System.currentTimeMillis() + 24 * 60 * 60 * 1000,
+                                    appointmentDateTime = appointmentDateTime,
                                     notes = notes.trim()
                                 )
                             )

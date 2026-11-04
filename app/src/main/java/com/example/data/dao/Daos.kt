@@ -197,10 +197,13 @@ interface DoseLogDao {
     @Query("UPDATE dose_logs SET status = :newStatus, actualActionDateTime = :actionTime, notes = :notes WHERE id = :id AND status = :expectedStatus")
     suspend fun updateDoseStatusConditional(id: Long, expectedStatus: String, newStatus: String, actionTime: Long, notes: String = ""): Int
 
+    @Query("UPDATE dose_logs SET status = :newStatus, actualActionDateTime = :actionTime, notes = :notes WHERE id = :id AND status IN ('PENDING', 'SNOOZED')")
+    suspend fun updateActiveDoseStatus(id: Long, newStatus: String, actionTime: Long, notes: String = ""): Int
+
     @Query("UPDATE dose_logs SET status = :status, actualActionDateTime = :actionTime, notes = :notes WHERE id = :id")
     suspend fun updateDoseStatus(id: Long, status: String, actionTime: Long, notes: String = "")
 
-    @Query("DELETE FROM dose_logs WHERE medicineId = :medicineId AND status = 'PENDING'")
+    @Query("DELETE FROM dose_logs WHERE medicineId = :medicineId AND status IN ('PENDING', 'SNOOZED')")
     suspend fun cancelPendingDosesForMedicine(medicineId: Long)
 
     @Query("DELETE FROM dose_logs")

@@ -61,7 +61,8 @@
     <string name="schedule_tapering">Tapering / Limited Period</string>
     <string name="reminder_times">Reminder Times</string>
     <string name="add_time">Add Time</string>
-    <string name="interval_days_label">Interval in Days</string>
+    <string name="interval_days_label">Interval Days</string>
+    <string name="invalid_schedule_time">Enter valid 24-hour times, such as 08:00 or 23:59.</string>
 
     <!-- Dose Actions & Status -->
     <string name="action_take">Take</string>
@@ -118,6 +119,9 @@
     <string name="doctor_name">Doctor Name</string>
     <string name="clinic_location">Clinic / Hospital Location</string>
     <string name="appointment_datetime">Date and Time</string>
+    <string name="appointment_date">Appointment date</string>
+    <string name="appointment_time">Appointment time</string>
+    <string name="appointment_future_error">Choose a future date and time.</string>
     <string name="upcoming_appointments">Upcoming Appointments</string>
 
     <!-- Emergency Card -->

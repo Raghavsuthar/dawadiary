@@ -141,6 +141,8 @@ object BackupManager {
                         put("date", r.date)
                         put("doctorHospital", r.doctorHospital)
                         put("notes", r.notes)
+                        put("linkedMedicineName", r.linkedMedicineName)
+                        put("linkedCondition", r.linkedCondition)
                         put("createdAt", r.createdAt)
                     })
                 }
@@ -431,6 +433,8 @@ object BackupManager {
                             doctorHospital = r.optString("doctorHospital", r.optString("doctorOrHospital", "")),
                             recordType = r.optString("recordType", r.optString("category", "Prescription")),
                             notes = r.optString("notes", ""),
+                            linkedMedicineName = r.optString("linkedMedicineName", ""),
+                            linkedCondition = r.optString("linkedCondition", ""),
                             createdAt = r.optLong("createdAt", System.currentTimeMillis())
                         )
                     )

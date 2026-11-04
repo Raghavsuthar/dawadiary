@@ -86,6 +86,17 @@ class BackupRestoreTest {
                 notes = "Annual checkup"
             )
         )
+        db.recordDao().insertRecord(
+            RecordEntity(
+                profileId = profId,
+                title = "Cardiology Follow-up",
+                date = "2026-10-28",
+                doctorHospital = "Heart Care Clinic",
+                recordType = "DOCTOR_NOTE",
+                linkedMedicineName = "Atorvastatin",
+                linkedCondition = "Hyperlipidemia"
+            )
+        )
 
         val uri = Uri.fromFile(backupFile)
         val password = "StrongBackupPassword123"
@@ -130,6 +141,11 @@ class BackupRestoreTest {
         val restoredAppts = db.appointmentDao().getAllAppointmentsList()
         assertEquals(1, restoredAppts.size)
         assertEquals("Dr. Mehta", restoredAppts[0].doctorName)
+
+        val restoredRecords = db.recordDao().getAllRecordsList()
+        assertEquals(1, restoredRecords.size)
+        assertEquals("Atorvastatin", restoredRecords[0].linkedMedicineName)
+        assertEquals("Hyperlipidemia", restoredRecords[0].linkedCondition)
     }
 
     @Test

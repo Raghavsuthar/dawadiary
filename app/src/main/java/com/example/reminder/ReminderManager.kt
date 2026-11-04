@@ -10,13 +10,16 @@ import android.os.Build
 import com.example.data.AppDatabase
 import com.example.data.entity.DoseLogEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 object ReminderManager {
+
+    private val scheduleSyncMutex = Mutex()
 
     const val CHANNEL_ID = "dawadiary_reminders_channel"
     const val CHANNEL_NAME = "Medication Dose Reminders"
@@ -37,102 +40,83 @@ object ReminderManager {
         }
     }
 
-    suspend fun syncAndScheduleAlarms(context: Context) {
+    suspend fun <T> withScheduleSyncLock(block: suspend () -> T): T = scheduleSyncMutex.withLock { block() }
+
+    suspend fun syncAndScheduleAlarms(context: Context) = scheduleSyncMutex.withLock {
         withContext(Dispatchers.IO) {
             val db = AppDatabase.getInstance(context)
             val today = LocalDate.now()
-
+            val planningDates = ReminderSchedulePlanner.planningDates(today)
             val activeMeds = db.medicineDao().getAllActiveMedicinesWithScheduleList()
-            val existingProfiles = db.profileDao().getAllProfiles()
-            val profileMap = existingProfiles.associateBy { it.id }
+            val profileMap = db.profileDao().getAllProfiles().associateBy { it.id }
 
             for (medWithSched in activeMeds) {
                 val med = medWithSched.medicine
                 if (!med.isActive) continue
-
-                // Check start and end date validity
                 val startDate = try {
                     if (med.startDate.isNotBlank()) LocalDate.parse(med.startDate) else today
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     today
                 }
-
-                if (today.isBefore(startDate)) continue
-
-                if (!med.endDate.isNullOrBlank()) {
-                    try {
-                        val endDate = LocalDate.parse(med.endDate)
-                        if (today.isAfter(endDate)) continue
-                    } catch (e: Exception) {
-                        // ignore malformed date
-                    }
+                val endDate = med.endDate?.takeIf { it.isNotBlank() }?.let {
+                    try { LocalDate.parse(it) } catch (_: Exception) { null }
                 }
-
                 val profile = profileMap[med.profileId] ?: continue
 
                 for (sched in medWithSched.schedules) {
-                    if (!sched.isActive) continue
-
-                    // Check schedule type applicability for today
-                    if (sched.scheduleType == "AS_NEEDED") {
-                        // PRN medicines are taken as needed, no preset daily alarms
-                        continue
+                    if (!sched.isActive || sched.scheduleType == "AS_NEEDED") continue
+                    val taperingEnd = sched.taperingEndDate?.takeIf { it.isNotBlank() }?.let {
+                        try { LocalDate.parse(it) } catch (_: Exception) { null }
                     }
 
-                    if (sched.scheduleType == "SPECIFIC_DAYS") {
-                        // Day of week: 1=Monday .. 7=Sunday
-                        val dayVal = today.dayOfWeek.value
-                        val maskBit = 1 shl (dayVal - 1)
-                        if ((sched.daysOfWeekMask and maskBit) == 0) {
-                            continue
-                        }
-                    } else if (sched.scheduleType == "INTERVAL") {
-                        val interval = if (sched.intervalDays > 0) sched.intervalDays else 1
-                        val daysBetween = ChronoUnit.DAYS.between(startDate, today)
-                        if (daysBetween < 0 || (daysBetween % interval) != 0L) {
-                            continue
-                        }
-                    }
+                    for (scheduleDate in planningDates) {
+                        if (scheduleDate.isBefore(startDate) || (endDate != null && scheduleDate.isAfter(endDate))) continue
+                        if (taperingEnd != null && scheduleDate.isAfter(taperingEnd)) continue
 
-                    if (!sched.taperingEndDate.isNullOrBlank()) {
-                        try {
-                            val taperingEnd = LocalDate.parse(sched.taperingEndDate)
-                            if (today.isAfter(taperingEnd)) continue
-                        } catch (e: Exception) {
-                            // ignore malformed tapering date
-                        }
-                    }
+                        if (!ReminderSchedulePlanner.appliesOnDate(
+                                scheduleType = sched.scheduleType,
+                                date = scheduleDate,
+                                startDate = startDate,
+                                daysOfWeekMask = sched.daysOfWeekMask,
+                                intervalDays = sched.intervalDays
+                            )) continue
 
-                    val times = sched.timesOfDay.split(",").map { it.trim() }
-                    for (timeStr in times) {
-                        try {
-                            val parts = timeStr.split(":")
-                            if (parts.size == 2) {
-                                val hour = parts[0].toInt()
-                                val min = parts[1].toInt()
-                                val schedTime = today.atTime(hour, min).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-                                val existing = db.doseLogDao().findExistingDose(med.id, schedTime)
-                                val doseId = if (existing == null) {
-                                    db.doseLogDao().insertDoseLog(
-                                        DoseLogEntity(
-                                            profileId = med.profileId,
-                                            medicineId = med.id,
-                                            scheduleId = sched.id,
-                                            scheduledDateTime = schedTime,
-                                            status = "PENDING"
-                                        )
+                        for (timeStr in sched.timesOfDay.split(",").map { it.trim() }) {
+                            try {
+                                val parts = timeStr.split(":")
+                                if (parts.size != 2) continue
+                                val scheduledAt = scheduleDate.atTime(parts[0].toInt(), parts[1].toInt())
+                                    .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                val existing = db.doseLogDao().findExistingDose(med.id, scheduledAt)
+                                val doseId = existing?.id ?: db.doseLogDao().insertDoseLog(
+                                    DoseLogEntity(
+                                        profileId = med.profileId,
+                                        medicineId = med.id,
+                                        scheduleId = sched.id,
+                                        scheduledDateTime = scheduledAt,
+                                        status = "PENDING"
                                     )
-                                } else {
-                                    existing.id
+                                )
+                                val now = System.currentTimeMillis()
+                                when (existing?.status ?: "PENDING") {
+                                    "PENDING" -> if (scheduledAt > now) {
+                                        scheduleExactAlarm(context, doseId, med.id, med.name, med.doseDescription, profile.name, scheduledAt)
+                                    } else {
+                                        cancelAlarmForDose(context, doseId)
+                                    }
+                                    "SNOOZED" -> {
+                                        val snoozeAt = (existing?.actualActionDateTime ?: now) + 10 * 60 * 1000L
+                                        if (snoozeAt > now) {
+                                            scheduleExactAlarm(context, doseId, med.id, med.name, med.doseDescription, profile.name, snoozeAt)
+                                        } else {
+                                            cancelAlarmForDose(context, doseId)
+                                        }
+                                    }
+                                    else -> cancelAlarmForDose(context, doseId)
                                 }
-
-                                if (schedTime > System.currentTimeMillis()) {
-                                    scheduleExactAlarm(context, doseId, med.id, med.name, med.doseDescription, profile.name, schedTime)
-                                }
+                            } catch (_: Exception) {
+                                // Ignore malformed legacy schedule values; form validation prevents new invalid times.
                             }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
                         }
                     }
                 }
@@ -216,7 +200,7 @@ object ReminderManager {
             val db = AppDatabase.getInstance(context)
             val doses = db.doseLogDao().getDosesForMedicine(medicineId)
             for (d in doses) {
-                if (d.status == "PENDING") {
+                if (d.status == "PENDING" || d.status == "SNOOZED") {
                     cancelAlarmForDose(context, d.id)
                 }
             }
